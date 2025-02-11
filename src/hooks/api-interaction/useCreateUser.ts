@@ -2,7 +2,8 @@ import { useMutation, UseMutationOptions } from "@tanstack/react-query";
 import axios, { AxiosResponse } from "axios";
 import { useMagic } from "../useMagic";
 import { generateUserName } from "@/utils/generateUserName";
-
+import { useUser } from "@/context/UserContext";
+import { useNavigate } from "react-router";
 export interface User {
     email: string;
     password: string;
@@ -31,6 +32,10 @@ export const useCreateMagicUser = (
     mutationConfig?: UseMutationOptions<AxiosResponse<CreateUserResponse>, Error, User>
 ) => {
     const { magic } = useMagic();
+    const { setUser } = useUser();
+    const navigate = useNavigate();
+
+
     return useMutation({
         mutationFn: async (user: User) => {
             await magic?.auth.loginWithEmailOTP({
@@ -47,6 +52,18 @@ export const useCreateMagicUser = (
                 userAddress: userInfo?.publicAddress ?? "",
             };
             return await createUser(userPayload);
+
+        },
+        onSuccess: async () => {
+            const userInfo = await magic?.user.getInfo();
+            const userPayload = {
+                email: userInfo?.email ?? "",
+                publicAddress: userInfo?.publicAddress ?? "",
+                username: generateUserName(userInfo?.publicAddress ?? ""),
+                walletType: "magic-link" as const,
+            };
+            setUser(userPayload);
+            navigate("/create-hash");
         },
         ...mutationConfig,
     });

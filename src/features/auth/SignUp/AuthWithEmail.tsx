@@ -16,10 +16,8 @@ interface AuthSectionFormData {
 
 const AuthWithEmail = ({
   setError,
-  redirectOnSuccess,
 }: {
   setError: React.Dispatch<React.SetStateAction<string | null>>;
-  redirectOnSuccess: () => void;
 }) => {
   const [formData, setFormData] = useState<AuthSectionFormData>({
     email: "",
@@ -30,9 +28,6 @@ const AuthWithEmail = ({
   const paramsCategory = searchParams.get("category");
 
   const createUserMutation = useCreateMagicUser({
-    onSuccess: () => {
-      redirectOnSuccess();
-    },
     onError: (error) => {
       setError(error.message);
     },

@@ -19,10 +19,6 @@ export const AuthSection = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const { setUser } = useUser();
 
-  const redirectOnSuccess = () => {
-    navigate("/create-hash");
-  };
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
@@ -125,12 +121,7 @@ export const AuthSection = () => {
             </button>
           </form>
         )}
-        {tab === "signup" && (
-          <AuthWithEmail
-            setError={setError}
-            redirectOnSuccess={redirectOnSuccess}
-          />
-        )}
+        {tab === "signup" && <AuthWithEmail setError={setError} />}
 
         <div className="relative text-center">
           <div className="absolute inset-0 flex items-center">

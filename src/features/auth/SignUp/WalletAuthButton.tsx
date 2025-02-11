@@ -3,7 +3,7 @@ import { useAccount, useAccountEffect, useDisconnect } from "wagmi";
 import loader from "@/assets/loader.svg";
 import { useCreateRainbowKitUser } from "@/hooks/api-interaction/useCreateUser";
 import { generateUserName } from "@/utils/generateUserName";
-import { useSearchParams } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { userExists } from "@/services/api/userServices";
 import { AxiosError } from "axios";
 import { useUser } from "@/context/UserContext";
@@ -12,17 +12,16 @@ const WalletAuthButton = ({
   tab,
   setTab,
   setError,
-  redirectOnSuccess,
 }: {
   tab: "signup" | "signin";
   setTab: React.Dispatch<React.SetStateAction<"signup" | "signin">>;
   setError: (error: string) => void;
-  redirectOnSuccess: () => void;
 }) => {
   const { openConnectModal } = useConnectModal();
   const { openAccountModal } = useAccountModal();
   const account = useAccount();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { disconnect } = useDisconnect();
   const paramsCategory = searchParams.get("category");
   const { setUser } = useUser();
@@ -80,7 +79,7 @@ const WalletAuthButton = ({
 
       // Store user info in context
       setUser(userPayload);
-      redirectOnSuccess();
+      navigate("/dashboard");
     }
   };
 

@@ -55,7 +55,7 @@ const Welcome = () => {
           ))}
         </div>
         <Link
-          to={"/signup" + (paramCategory ? `?category=${paramCategory}` : "")}
+          to={"/auth" + (paramCategory ? `?category=${paramCategory}` : "")}
           className="bg-[#FF9519] font-semibold text-white px-5 py-3 rounded-full flex items-center gap-2 cursor-pointer"
         >
           Register your copyright

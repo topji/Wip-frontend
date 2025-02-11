@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
-import illustration from "@/assets/illustrations/4.svg";
 import logo from "/World_IP_logo.svg";
 import { useNavigate } from "react-router";
 import { useShare } from "@/context/ShareContext";
 import { useUser } from "@/context/UserContext";
-// import { TextArea } from "@/components/TextArea/TextArea";
 import WalletButton from "@/components/wallet/WalletButton";
 
 interface Creator {
@@ -17,9 +15,7 @@ const RegisterOwner = () => {
   const [creators, setCreators] = useState<Creator[]>([]);
   const [newAddress, setNewAddress] = useState("");
   const [newShare, setNewShare] = useState("");
-  const [mainUserShare, setMainUserShare] = useState("50");
-  const [details, setDetails] = useState("");
-  const [disclaimer, setDisclaimer] = useState(false);
+  // const [mainUserShare, setMainUserShare] = useState("50");
   const { user } = useUser();
   const { addShare, clearShares } = useShare();
   const navigate = useNavigate();
@@ -27,25 +23,29 @@ const RegisterOwner = () => {
   useEffect(() => {
     clearShares();
     if (ownerType === "multiple" && user) {
-      setCreators([{ address: user.publicAddress, percentage: 0 }]);
+      setCreators([{ address: user.publicAddress, percentage: 50 }]);
     } else {
       setCreators([]);
     }
   }, [ownerType, user]);
 
-  const handleMainUserShareChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Number(e.target.value);
-    if (value < 0 || value > 100) return;
-    
-    setMainUserShare(e.target.value);
-    if (user) {
-      const otherCreators = creators.filter(c => c.address !== user.publicAddress);
-      setCreators([
-        { address: user.publicAddress, percentage: value },
-        ...otherCreators
-      ]);
-    }
-  };
+  // const handleMainUserShareChange = (
+  //   e: React.ChangeEvent<HTMLInputElement>
+  // ) => {
+  //   const value = Number(e.target.value);
+  //   if (value < 0 || value > 100) return;
+
+  //   setMainUserShare(e.target.value);
+  //   if (user) {
+  //     const otherCreators = creators.filter(
+  //       (c) => c.address !== user.publicAddress
+  //     );
+  //     setCreators([
+  //       { address: user.publicAddress, percentage: value },
+  //       ...otherCreators,
+  //     ]);
+  //   }
+  // };
 
   const handleContinue = () => {
     if (ownerType === "sole" && user) {
@@ -61,7 +61,7 @@ const RegisterOwner = () => {
         });
       });
     }
-    navigate("/confirm-register");
+    navigate("/creation-pending");
   };
 
   const handleAddCreator = () => {
@@ -79,10 +79,7 @@ const RegisterOwner = () => {
       { address: newAddress, percentage: shareValue },
     ];
 
-    setCreators([
-      { address: user.publicAddress, percentage: Number(mainUserShare) },
-      ...newCreators,
-    ]);
+    setCreators((prev) => [...prev, ...newCreators]);
 
     setNewAddress("");
     setNewShare("");
@@ -174,7 +171,7 @@ const RegisterOwner = () => {
 
           {ownerType === "multiple" && (
             <div className="flex flex-col gap-4 mt-4">
-              <div className="flex items-center justify-between bg-gray-100 p-4 rounded-lg">
+              {/* <div className="flex items-center justify-between bg-gray-100 p-4 rounded-lg">
                 <span className="text-gray-600">Your Share</span>
                 <input
                   type="number"
@@ -184,7 +181,7 @@ const RegisterOwner = () => {
                   min="0"
                   max="100"
                 />
-              </div>
+              </div> */}
 
               {creators.map((creator, index) => (
                 <div
@@ -235,8 +232,6 @@ const RegisterOwner = () => {
                   Add
                 </button>
               </div>
-
-              
             </div>
           )}
 

@@ -17,6 +17,8 @@ import { UserProvider } from "./context/UserContext";
 import { ShareProvider } from "./context/ShareContext";
 import ConfirmRegister from "./views/pages/ConfirmRegister";
 import RegisterSuccess from "./views/pages/RegisterSuccess";
+import Dashboard from "./views/pages/Dashboard";
+import DashboardLayout from "./views/layouts/DashboardLayout";
 const config = getDefaultConfig({
   appName: "World IP",
   projectId: "7825716eb0430cd79e3edfabcd5e7518",
@@ -39,20 +41,30 @@ const router = createBrowserRouter([
         element: <AuthPage />,
       },
       {
-        path: "register",
+        path: "create-hash", // create-hash
         element: <RegisterIP />,
       },
       {
-        path: "register-owner",
+        path: "set-ownership", // set-ownership
         element: <RegisterOwner />,
       },
       {
-        path: "confirm-register",
+        path: "creation-pending", // creation-pending
         element: <ConfirmRegister />,
       },
       {
-        path: "register-success",
+        path: "creation-success", // creation-success
         element: <RegisterSuccess />,
+      },
+    ],
+  },
+  {
+    path: "dashboard",
+    element: <DashboardLayout />,
+    children: [
+      {
+        index: true,
+        element: <Dashboard />,
       },
     ],
   },

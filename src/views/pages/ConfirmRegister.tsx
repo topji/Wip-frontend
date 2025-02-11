@@ -11,8 +11,9 @@ const ConfirmRegister = () => {
   const { shares } = useShare();
   const navigate = useNavigate();
   const { storedValue: hash } = useSessionStorage("hash", "");
-  const fileFormat = sessionStorage.getItem('fileFormat') || 'txt';
-  const description = sessionStorage.getItem('description') || 'Copyright registration';
+  const fileFormat = sessionStorage.getItem("fileFormat") || "txt";
+  const description =
+    sessionStorage.getItem("description") || "Copyright registration";
 
   useEffect(() => {
     const createCertificateCall = async () => {
@@ -22,14 +23,14 @@ const ConfirmRegister = () => {
           metadataURI: "NA",
           description: description,
           fileFormat: fileFormat,
-          owners: shares.map(share => ({
+          owners: shares.map((share) => ({
             walletAddress: share.address,
-            percentage: share.percentage
-          }))
+            percentage: share.percentage,
+          })),
         };
         const certificate = await createCertificate(payload);
         if (certificate.success) {
-          navigate("/register-success");
+          navigate("/creation-success");
         }
       } catch (error) {
         console.error(error);
@@ -37,7 +38,7 @@ const ConfirmRegister = () => {
     };
 
     if (!user || !shares) {
-      navigate("/register-owner");
+      navigate("/set-ownership");
     }
     createCertificateCall();
   }, [user, shares, hash, fileFormat, navigate]);

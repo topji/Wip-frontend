@@ -1,4 +1,3 @@
-
 import logo from "/World_IP_logo.svg";
 import { useRef, useState } from "react";
 import { TextArea } from "@/components/TextArea/TextArea";
@@ -19,9 +18,9 @@ const RegisterIP = () => {
   const { setValue: setHash } = useSessionStorage("hash", "");
 
   const handleOnSuccess = (hash: string) => {
-    sessionStorage.setItem('description', description);
+    sessionStorage.setItem("description", description);
     setHash(hash);
-    navigate("/register-owner");
+    navigate("/set-ownership");
   };
 
   const handleUpload = async () => {
@@ -29,7 +28,7 @@ const RegisterIP = () => {
       setProcessing(true);
       const hash = await generateHash({ type: "text", content: text });
       console.log(hash);
-      sessionStorage.setItem('description', description);
+      sessionStorage.setItem("description", description);
       handleOnSuccess(hash);
       setProcessing(false);
     } else {
@@ -43,11 +42,11 @@ const RegisterIP = () => {
     if (!file) return;
     setProcessing(true);
     const hash = await generateHash({ type: "file", content: file });
-    const fileFormat = file.name.split('.').pop() || '';
+    const fileFormat = file.name.split(".").pop() || "";
     setHash(hash);
-    sessionStorage.setItem('fileFormat', `.${fileFormat}`);
-    sessionStorage.setItem('description', description);
-    navigate("/register-owner");
+    sessionStorage.setItem("fileFormat", `.${fileFormat}`);
+    sessionStorage.setItem("description", description);
+    navigate("/set-ownership");
     setProcessing(false);
   };
 

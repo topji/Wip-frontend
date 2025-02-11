@@ -20,7 +20,7 @@ export const AuthSection = () => {
   const { setUser } = useUser();
 
   const redirectOnSuccess = () => {
-    navigate("/register");
+    navigate("/create-hash");
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,7 +51,7 @@ export const AuthSection = () => {
             walletType: "magic-link" as const,
           };
           setUser(userPayload);
-          redirectOnSuccess();
+          navigate("/dashboard");
         } else {
           setError("User does not exist");
           setTab("signup");
@@ -180,12 +180,7 @@ export const AuthSection = () => {
             </svg>
           </div>
         </button>
-        <WalletAuthButton
-          tab={tab}
-          setTab={setTab}
-          setError={setError}
-          redirectOnSuccess={redirectOnSuccess}
-        />
+        <WalletAuthButton tab={tab} setTab={setTab} setError={setError} />
       </div>
     </div>
   );

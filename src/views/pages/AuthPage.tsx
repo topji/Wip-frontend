@@ -1,4 +1,3 @@
-import illustration from "@/assets/illustrations/2.svg";
 import logo from "/World_IP_logo.svg";
 import { AuthSection } from "@/features/auth/SignUp/AuthSection";
 const AuthPage = () => {

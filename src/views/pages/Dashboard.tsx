@@ -123,7 +123,7 @@ const Dashboard = () => {
                   <div className="font-bold">
                     <div className="text-[#5865F2] mb-1">Description</div>
                     <p className="text-[1.25rem] text-black">
-                      {certificateDetails.data.metadataURI}
+                      {certificateDetails.data.description}
                     </p>
                   </div>
                   <div className="flex gap-4 items-center justify-between">

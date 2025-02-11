@@ -5,10 +5,17 @@
 
 import axios from "axios";
 
+interface Owner {
+    walletAddress: string;
+    percentage: number;
+}
+
 export interface CreateCertificateRequest {
     fileHash: string;
     metadataURI: string;
-    userAddress: string;
+    description: string;
+    fileFormat: string;
+    owners: Owner[];
 }
 
 export interface CreateCertificateResponse {

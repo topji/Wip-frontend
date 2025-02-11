@@ -1,4 +1,4 @@
-import illustration from "@/assets/illustrations/3.svg";
+
 import logo from "/World_IP_logo.svg";
 import { useRef, useState } from "react";
 import { TextArea } from "@/components/TextArea/TextArea";
@@ -11,6 +11,7 @@ import WalletButton from "@/components/wallet/WalletButton";
 const RegisterIP = () => {
   const [fileType, setFileType] = useState<"file" | "text">("file");
   const [text, setText] = useState("");
+  const [description, setDescription] = useState("");
   const generateHash = useGenerateHash();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [processing, setProcessing] = useState(false);
@@ -18,6 +19,7 @@ const RegisterIP = () => {
   const { setValue: setHash } = useSessionStorage("hash", "");
 
   const handleOnSuccess = (hash: string) => {
+    sessionStorage.setItem('description', description);
     setHash(hash);
     navigate("/register-owner");
   };
@@ -27,6 +29,7 @@ const RegisterIP = () => {
       setProcessing(true);
       const hash = await generateHash({ type: "text", content: text });
       console.log(hash);
+      sessionStorage.setItem('description', description);
       handleOnSuccess(hash);
       setProcessing(false);
     } else {
@@ -40,8 +43,11 @@ const RegisterIP = () => {
     if (!file) return;
     setProcessing(true);
     const hash = await generateHash({ type: "file", content: file });
-    console.log(hash);
-    handleOnSuccess(hash);
+    const fileFormat = file.name.split('.').pop() || '';
+    setHash(hash);
+    sessionStorage.setItem('fileFormat', `.${fileFormat}`);
+    sessionStorage.setItem('description', description);
+    navigate("/register-owner");
     setProcessing(false);
   };
 
@@ -56,7 +62,18 @@ const RegisterIP = () => {
           <span className="text-blue-500">here</span>
         </h1>
         <div className="relative">
-          <img src={illustration} alt="illustration" />
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full h-full object-cover"
+          >
+            <source
+              src="https://worldip.s3.us-east-1.amazonaws.com/hero-asset.mp4"
+              type="video/mp4"
+            />
+          </video>
         </div>
       </div>
       <div className="bg-[#F8F8F8] p-12 w-[47%] flex flex-col items-start gap-8 justify-center">
@@ -104,6 +121,13 @@ const RegisterIP = () => {
               <p className="text-gray-500">Upload your Text</p>
             </div>
           </div>
+
+          <TextArea
+            value={description}
+            onChange={setDescription}
+            placeholder="Enter description of your work"
+            className="mb-4"
+          />
 
           {fileType === "text" && (
             <div className="flex flex-col gap-2">

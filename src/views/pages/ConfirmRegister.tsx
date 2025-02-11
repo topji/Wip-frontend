@@ -11,13 +11,21 @@ const ConfirmRegister = () => {
   const { shares } = useShare();
   const navigate = useNavigate();
   const { storedValue: hash } = useSessionStorage("hash", "");
+  const fileFormat = sessionStorage.getItem('fileFormat') || 'txt';
+  const description = sessionStorage.getItem('description') || 'Copyright registration';
+
   useEffect(() => {
     const createCertificateCall = async () => {
       try {
         const payload = {
           fileHash: hash,
           metadataURI: "NA",
-          userAddress: user?.publicAddress ?? "",
+          description: description,
+          fileFormat: fileFormat,
+          owners: shares.map(share => ({
+            walletAddress: share.address,
+            percentage: share.percentage
+          }))
         };
         const certificate = await createCertificate(payload);
         if (certificate.success) {
@@ -27,11 +35,12 @@ const ConfirmRegister = () => {
         console.error(error);
       }
     };
+
     if (!user || !shares) {
       navigate("/register-owner");
     }
     createCertificateCall();
-  }, [user, shares]);
+  }, [user, shares, hash, fileFormat, navigate]);
 
   return (
     <main className="flex gap-8 grow">

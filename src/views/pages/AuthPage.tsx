@@ -13,7 +13,18 @@ const AuthPage = () => {
           <span className="text-blue-500">now</span>
         </h1>
         <div className="relative mt-auto justify-self-end">
-          <img src={illustration} alt="illustration" />
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full h-full object-cover"
+          >
+            <source
+              src="https://worldip.s3.us-east-1.amazonaws.com/footer.mp4"
+              type="video/mp4"
+            />
+          </video>
         </div>
       </div>
       <div className="bg-[#F8F8F8] p-12 w-[47%] flex flex-col items-center gap-8 justify-center">

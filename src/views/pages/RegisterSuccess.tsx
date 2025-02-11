@@ -1,8 +1,15 @@
 import WalletButton from "@/components/wallet/WalletButton";
 import logo from "/World_IP_logo.svg";
 import success from "@/assets/success.gif";
+import { useNavigate } from "react-router";
 
 const RegisterSuccess = () => {
+  const navigate = useNavigate();
+
+  const handleGoToDashboard = () => {
+    navigate("/dashboard");
+  };
+
   return (
     <main className="flex gap-8 grow">
       <div className="flex flex-col gap-2 items-center justify-between grow">
@@ -25,8 +32,11 @@ const RegisterSuccess = () => {
             <p className="text-4xl font-medium text-[#6B6B6B]">
               Your work is protected in more than 180 countries
             </p>
-            <button className="bg-[#FF9519] cursor-pointer text-white px-6 py-3 rounded-full flex items-center gap-2 w-fit">
-              Download Certifiate
+            <button 
+              onClick={handleGoToDashboard}
+              className="bg-[#FF9519] cursor-pointer text-white px-6 py-3 rounded-full flex items-center gap-2 w-fit"
+            >
+              Go To Dashboard
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path
                   d="M4 12L12 4M5.5 4H12V10.5"

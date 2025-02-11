@@ -2,19 +2,21 @@ interface TextAreaProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  className?: string;
 }
 
 export const TextArea = ({
   value,
   onChange,
   placeholder = "Input text",
+  className,
 }: TextAreaProps) => {
   return (
     <textarea
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="w-full min-h-[160px] p-4 font-semibold rounded-3xl border-2 bg-white border-[#ECECED] text-[#4F4B5C] placeholder:text-[#4F4B5C]"
+      className={`w-full p-3 rounded-lg border border-gray-200 resize-none ${className || ''}`}
     />
   );
 };

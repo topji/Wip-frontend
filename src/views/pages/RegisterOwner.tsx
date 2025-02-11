@@ -4,7 +4,7 @@ import logo from "/World_IP_logo.svg";
 import { useNavigate } from "react-router";
 import { useShare } from "@/context/ShareContext";
 import { useUser } from "@/context/UserContext";
-import { TextArea } from "@/components/TextArea/TextArea";
+// import { TextArea } from "@/components/TextArea/TextArea";
 import WalletButton from "@/components/wallet/WalletButton";
 
 interface Creator {
@@ -17,21 +17,35 @@ const RegisterOwner = () => {
   const [creators, setCreators] = useState<Creator[]>([]);
   const [newAddress, setNewAddress] = useState("");
   const [newShare, setNewShare] = useState("");
+  const [mainUserShare, setMainUserShare] = useState("50");
   const [details, setDetails] = useState("");
   const [disclaimer, setDisclaimer] = useState(false);
   const { user } = useUser();
   const { addShare, clearShares } = useShare();
   const navigate = useNavigate();
 
-  // Initialize creators when ownerType changes
   useEffect(() => {
     clearShares();
     if (ownerType === "multiple" && user) {
-      setCreators([{ address: user.publicAddress, percentage: 50 }]);
+      setCreators([{ address: user.publicAddress, percentage: 0 }]);
     } else {
       setCreators([]);
     }
   }, [ownerType, user]);
+
+  const handleMainUserShareChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Number(e.target.value);
+    if (value < 0 || value > 100) return;
+    
+    setMainUserShare(e.target.value);
+    if (user) {
+      const otherCreators = creators.filter(c => c.address !== user.publicAddress);
+      setCreators([
+        { address: user.publicAddress, percentage: value },
+        ...otherCreators
+      ]);
+    }
+  };
 
   const handleContinue = () => {
     if (ownerType === "sole" && user) {
@@ -65,15 +79,8 @@ const RegisterOwner = () => {
       { address: newAddress, percentage: shareValue },
     ];
 
-    // Calculate and set main user's share
-    const totalOtherShares = newCreators.reduce(
-      (sum, c) => sum + c.percentage,
-      0
-    );
-    const mainUserShare = Math.max(0, 100 - totalOtherShares);
-
     setCreators([
-      { address: user.publicAddress, percentage: mainUserShare },
+      { address: user.publicAddress, percentage: Number(mainUserShare) },
       ...newCreators,
     ]);
 
@@ -113,7 +120,14 @@ const RegisterOwner = () => {
           <span className="text-blue-500">Ownership</span>
         </h1>
         <div className="relative">
-          <img src={illustration} alt="illustration" />
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full"
+            src="https://worldip.s3.us-east-1.amazonaws.com/hero-2.MP4"
+          />
         </div>
       </div>
 
@@ -160,7 +174,18 @@ const RegisterOwner = () => {
 
           {ownerType === "multiple" && (
             <div className="flex flex-col gap-4 mt-4">
-              {/* Display all creators */}
+              <div className="flex items-center justify-between bg-gray-100 p-4 rounded-lg">
+                <span className="text-gray-600">Your Share</span>
+                <input
+                  type="number"
+                  value={mainUserShare}
+                  onChange={handleMainUserShareChange}
+                  className="w-24 p-2 rounded-lg border border-gray-200"
+                  min="0"
+                  max="100"
+                />
+              </div>
+
               {creators.map((creator, index) => (
                 <div
                   key={index}
@@ -188,7 +213,6 @@ const RegisterOwner = () => {
                 </div>
               ))}
 
-              {/* Add new creator */}
               <div className="flex gap-4">
                 <input
                   type="text"
@@ -212,23 +236,7 @@ const RegisterOwner = () => {
                 </button>
               </div>
 
-              <TextArea
-                value={details}
-                onChange={setDetails}
-                placeholder="Detail of Co-Creation"
-              />
-
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={disclaimer}
-                  onChange={(e) => setDisclaimer(e.target.checked)}
-                  className="checkbox [--radius-selector:0.5rem] [--color-base-content:white] [--input-color:black] [--border:2px]"
-                />
-                <span className="text-sm text-gray-600">
-                  Disclaimer <span className="text-blue-600">View</span>
-                </span>
-              </div>
+              
             </div>
           )}
 
@@ -236,8 +244,7 @@ const RegisterOwner = () => {
             className="bg-[#FF9519] cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed text-white px-6 py-3 rounded-full flex items-center gap-2 w-fit"
             disabled={
               ownerType === "multiple" &&
-              (!disclaimer ||
-                creators.reduce((sum, c) => sum + c.percentage, 0) !== 100)
+              creators.reduce((sum, c) => sum + c.percentage, 0) !== 100
             }
             onClick={handleContinue}
           >

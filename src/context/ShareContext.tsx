@@ -12,6 +12,7 @@ interface ShareContextType {
   updateShare: (address: string, updates: Partial<ShareInfo>) => void;
   clearShares: () => void;
   totalPercentage: number;
+  setShares: (shares: ShareInfo[]) => void;
 }
 
 const ShareContext = createContext<ShareContextType | undefined>(undefined);
@@ -67,6 +68,7 @@ export function ShareProvider({ children }: { children: ReactNode }) {
     updateShare,
     clearShares,
     totalPercentage,
+    setShares,
   };
 
   return (

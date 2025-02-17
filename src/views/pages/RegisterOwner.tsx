@@ -17,11 +17,10 @@ const RegisterOwner = () => {
   const [newShare, setNewShare] = useState("");
   // const [mainUserShare, setMainUserShare] = useState("50");
   const { user } = useUser();
-  const { addShare, clearShares } = useShare();
+  const { setShares } = useShare();
   const navigate = useNavigate();
 
   useEffect(() => {
-    clearShares();
     if (ownerType === "multiple" && user) {
       setCreators([{ address: user.publicAddress, percentage: 50 }]);
     } else {
@@ -48,19 +47,25 @@ const RegisterOwner = () => {
   // };
 
   const handleContinue = () => {
-    if (ownerType === "sole" && user) {
-      addShare({
+    if (!user) return;
+
+    if (ownerType === "sole") {
+      // For sole creator, set single share with 100%
+      setShares([{
         address: user.publicAddress,
-        percentage: 100,
-      });
+        percentage: 100
+      }]);
     } else if (ownerType === "multiple") {
-      creators.forEach((creator) => {
-        addShare({
-          address: creator.address,
-          percentage: creator.percentage,
-        });
-      });
+      // For multiple creators, set all shares at once
+      setShares(creators.map(creator => ({
+        address: creator.address,
+        percentage: creator.percentage
+      })));
     }
+
+    // Store shares in sessionStorage as backup
+    sessionStorage.setItem('shares', JSON.stringify(creators));
+    
     navigate("/creation-pending");
   };
 

@@ -19,6 +19,10 @@ import ConfirmRegister from "./views/pages/ConfirmRegister";
 import RegisterSuccess from "./views/pages/RegisterSuccess";
 import Dashboard from "./views/pages/Dashboard";
 import DashboardLayout from "./views/layouts/DashboardLayout";
+import UpdateCertificate from "./views/pages/UpdateCertificate";
+import UpdateSuccess from "./views/pages/UpdateSuccess";
+import VerifyCertificate from "./views/pages/VerifyCertificate";
+import VerificationSuccess from "./views/pages/VerificationSuccess";
 const config = getDefaultConfig({
   appName: "World IP",
   projectId: "7825716eb0430cd79e3edfabcd5e7518",
@@ -67,6 +71,22 @@ const router = createBrowserRouter([
         element: <Dashboard />,
       },
     ],
+  },
+  {
+    path: "update-certificate",
+    element: <UpdateCertificate />,
+  },
+  {
+    path: "update-success",
+    element: <UpdateSuccess />,
+  },
+  {
+    path: "verify-certificate",
+    element: <VerifyCertificate />,
+  },
+  {
+    path: "verification-success",
+    element: <VerificationSuccess />,
   },
 ]);
 

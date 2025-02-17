@@ -155,7 +155,8 @@ const Dashboard = () => {
                     </div>
                     <div className="flex gap-4">
                       <Link
-                        to="/"
+                        to="/update-certificate"
+                        state={{ certificateId: certificateDetails.data.id }}
                         className="bg-[#5865F2] cursor-pointer text-white px-6 py-3 rounded-full flex items-center gap-2 w-fit"
                       >
                         Update Certificate
@@ -175,7 +176,11 @@ const Dashboard = () => {
                         </svg>
                       </Link>
                       <Link
-                        to=""
+                        to="/verify-certificate"
+                        state={{ 
+                          certificateId: certificateDetails.data.id,
+                          originalHash: certificateDetails.data.fileHash 
+                        }}
                         className="bg-[#FF9519] cursor-pointer text-white px-6 py-3 rounded-full flex items-center gap-2 w-fit"
                       >
                         Verify

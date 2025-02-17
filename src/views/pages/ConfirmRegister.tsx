@@ -8,7 +8,7 @@ import { useSessionStorage } from "@/hooks/useSessionStorage";
 
 const ConfirmRegister = () => {
   const { user } = useUser();
-  const { shares } = useShare();
+  const { shares, setShares } = useShare();
   const navigate = useNavigate();
   const { storedValue: hash } = useSessionStorage("hash", "");
   const fileFormat = sessionStorage.getItem("fileFormat") || "txt";
@@ -16,8 +16,25 @@ const ConfirmRegister = () => {
     sessionStorage.getItem("description") || "Copyright registration";
 
   useEffect(() => {
+    // Recover shares from sessionStorage if context is empty
+    if (shares.length === 0) {
+      const storedShares = sessionStorage.getItem("shares");
+      if (storedShares) {
+        setShares(JSON.parse(storedShares));
+      } else if (!user) {
+        navigate("/set-ownership");
+        return;
+      }
+    }
+
     const createCertificateCall = async () => {
       try {
+        if (shares.length === 0) {
+          console.error("No shares available");
+          navigate("/set-ownership");
+          return;
+        }
+
         const payload = {
           fileHash: hash,
           metadataURI: "NA",
@@ -30,6 +47,8 @@ const ConfirmRegister = () => {
         };
         const certificate = await createCertificate(payload);
         if (certificate.success) {
+          // Clear stored shares after successful creation
+          sessionStorage.removeItem("shares");
           navigate("/creation-success");
         }
       } catch (error) {
@@ -37,11 +56,8 @@ const ConfirmRegister = () => {
       }
     };
 
-    if (!user || !shares) {
-      navigate("/set-ownership");
-    }
     createCertificateCall();
-  }, [user, shares, hash, fileFormat, navigate]);
+  }, [user, shares, hash, fileFormat, navigate, setShares]);
 
   return (
     <main className="flex gap-8 grow">

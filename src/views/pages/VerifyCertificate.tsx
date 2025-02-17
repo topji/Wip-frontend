@@ -15,7 +15,7 @@ const VerifyCertificate = () => {
   const [processing, setProcessing] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { certificateId, originalHash } = location.state;
+  const { originalHash } = location.state;
 
   const handleVerify = async () => {
     if (fileType === "text") {

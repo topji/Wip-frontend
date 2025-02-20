@@ -23,6 +23,7 @@ import UpdateCertificate from "./views/pages/UpdateCertificate";
 import UpdateSuccess from "./views/pages/UpdateSuccess";
 import VerifyCertificate from "./views/pages/VerifyCertificate";
 import VerificationSuccess from "./views/pages/VerificationSuccess";
+import ProtectedLayout from "./views/layouts/ProtectedLayout";
 const config = getDefaultConfig({
   appName: "World IP",
   projectId: "7825716eb0430cd79e3edfabcd5e7518",
@@ -46,19 +47,35 @@ const router = createBrowserRouter([
       },
       {
         path: "create-hash", // create-hash
-        element: <RegisterIP />,
+        element: (
+          <ProtectedLayout>
+            <RegisterIP />
+          </ProtectedLayout>
+        ),
       },
       {
         path: "set-ownership", // set-ownership
-        element: <RegisterOwner />,
+        element: (
+          <ProtectedLayout>
+            <RegisterOwner />
+          </ProtectedLayout>
+        ),
       },
       {
         path: "creation-pending", // creation-pending
-        element: <ConfirmRegister />,
+        element: (
+          <ProtectedLayout>
+            <ConfirmRegister />
+          </ProtectedLayout>
+        ),
       },
       {
         path: "creation-success", // creation-success
-        element: <RegisterSuccess />,
+        element: (
+          <ProtectedLayout>
+            <RegisterSuccess />
+          </ProtectedLayout>
+        ),
       },
     ],
   },
@@ -68,25 +85,45 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Dashboard />,
+        element: (
+          <ProtectedLayout>
+            <Dashboard />
+          </ProtectedLayout>
+        ),
       },
     ],
   },
   {
     path: "update-certificate",
-    element: <UpdateCertificate />,
+    element: (
+      <ProtectedLayout>
+        <UpdateCertificate />
+      </ProtectedLayout>
+    ),
   },
   {
     path: "update-success",
-    element: <UpdateSuccess />,
+    element: (
+      <ProtectedLayout>
+        <UpdateSuccess />
+      </ProtectedLayout>
+    ),
   },
   {
     path: "verify-certificate",
-    element: <VerifyCertificate />,
+    element: (
+      <ProtectedLayout>
+        <VerifyCertificate />
+      </ProtectedLayout>
+    ),
   },
   {
     path: "verification-success",
-    element: <VerificationSuccess />,
+    element: (
+      <ProtectedLayout>
+        <VerificationSuccess />
+      </ProtectedLayout>
+    ),
   },
 ]);
 

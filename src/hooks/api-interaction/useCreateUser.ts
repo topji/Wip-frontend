@@ -24,7 +24,7 @@ type CreateUserResponse = {
     transaction: string;
 }
 
-const createUser = async (user: UserPayload): Promise<AxiosResponse<CreateUserResponse>> => {
+export const createUser = async (user: UserPayload): Promise<AxiosResponse<CreateUserResponse>> => {
     return await axios.post(`${import.meta.env.VITE_API_URL}/users/register`, user);
 };
 

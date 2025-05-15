@@ -25,7 +25,7 @@ const MagicProvider = ({ children }: { children: ReactNode }) => {
   const [magic, setMagic] = useState<Magic | null>(null);
 
   useEffect(() => {
-    const magic = new MagicBase("pk_live_4AC14FACA428298F", {
+    const magic = new MagicBase("pk_live_58D03BEFF139E3C6", {
       network: {
         rpcUrl: "https://rpc2.sepolia.org",
         chainId: 11155111,

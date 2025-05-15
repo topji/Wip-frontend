@@ -27,8 +27,8 @@ const MagicProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const magic = new MagicBase("pk_live_58D03BEFF139E3C6", {
       network: {
-        rpcUrl: "https://rpc2.sepolia.org",
-        chainId: 11155111,
+        rpcUrl: "https://sepolia.base.org",
+        chainId: 84532,
       },
       extensions: [new OAuthExtension()],
     });

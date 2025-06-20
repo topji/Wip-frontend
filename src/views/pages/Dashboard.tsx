@@ -2,42 +2,37 @@ import { format } from "date-fns";
 import copyRightIllustration from "@/assets/illustrations/copyRightIllus.png";
 import { Link } from "react-router";
 import {
-  useGetCertificateDetails,
   useGetCertificateIds,
+  CertificateOwner,
 } from "@/hooks/api-interaction/useGetCertificateDetails";
 import { useUser } from "@/context/UserContext";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const Dashboard = () => {
-  // Mock data - replace with actual data fetching
   const { user } = useUser();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [certificateId, setCertificateId] = useState<string | undefined>();
 
   const { data: certificateIds, isLoading: loadingCertificateIds } =
     useGetCertificateIds(user?.publicAddress ?? "");
-  const { data: certificateDetails, isLoading: loadingCertificateDetails } =
-    useGetCertificateDetails(certificateId ?? "");
 
-  useEffect(() => {
-    if (certificateIds && certificateIds.length > 0) {
-      setCertificateId(certificateIds[currentIndex]);
-    }
-  }, [certificateIds, currentIndex]);
+  // Console logs for debugging API responses
+  console.log("Certificate IDs Response:", certificateIds);
+
+  const currentCertificate = certificateIds?.data?.[currentIndex];
 
   const handlePrevious = () => {
-    if (certificateIds && currentIndex > 0) {
+    if (certificateIds?.data && currentIndex > 0) {
       setCurrentIndex((prev) => prev - 1);
     }
   };
 
   const handleNext = () => {
-    if (certificateIds && currentIndex < certificateIds.length - 1) {
+    if (certificateIds?.data && currentIndex < certificateIds.data.length - 1) {
       setCurrentIndex((prev) => prev + 1);
     }
   };
 
-  const isLoading = loadingCertificateIds || loadingCertificateDetails;
+  const isLoading = loadingCertificateIds;
 
   return (
     <div className="p-8 bg-[#EDEDED] w-full flex flex-col">
@@ -82,9 +77,9 @@ const Dashboard = () => {
         </div>
       ) : (
         <div className="space-y-6 flex items-center gap-8">
-          {certificateDetails && (
+          {currentCertificate && (
             <div
-              key={certificateDetails.data.id}
+              key={currentCertificate._id}
               className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
             >
               <div className="flex gap-8">
@@ -105,7 +100,7 @@ const Dashboard = () => {
                     </div>
                     <div className="text-[0.875rem] text-[#ADADAD]">
                       {format(
-                        new Date(certificateDetails.data.createdAt),
+                        new Date(currentCertificate.timestamp * 1000),
                         "dd/MM/yyyy | HH:mm"
                       )}
                     </div>
@@ -116,14 +111,14 @@ const Dashboard = () => {
                       Hash ID for this File
                     </div>
                     <div className="text-[1.25rem] text-black">
-                      {certificateDetails.data.fileHash}
+                      {currentCertificate.fileHash}
                     </div>
                   </div>
 
                   <div className="font-bold">
                     <div className="text-[#5865F2] mb-1">Description</div>
                     <p className="text-[1.25rem] text-black">
-                      {certificateDetails.data.description}
+                      {currentCertificate.description}
                     </p>
                   </div>
                   <div className="flex gap-4 items-center justify-between">
@@ -132,7 +127,7 @@ const Dashboard = () => {
                         Ownership Rights
                       </div>
                       <div className="flex gap-4">
-                        {certificateDetails.data.owners.map((owner, index) => (
+                        {currentCertificate.owners.map((owner: CertificateOwner, index: number) => (
                           <div
                             key={index}
                             className="flex items-center font-bold gap-2 p-2 border border-[#ECECED] rounded-full"
@@ -156,7 +151,7 @@ const Dashboard = () => {
                     <div className="flex gap-4">
                       <Link
                         to="/update-certificate"
-                        state={{ certificateId: certificateDetails.data.id }}
+                        state={{ certificateId: currentCertificate.certificateId }}
                         className="bg-[#5865F2] cursor-pointer text-white px-6 py-3 rounded-full flex items-center gap-2 w-fit"
                       >
                         Update Certificate
@@ -178,8 +173,8 @@ const Dashboard = () => {
                       <Link
                         to="/verify-certificate"
                         state={{ 
-                          certificateId: certificateDetails.data.id,
-                          originalHash: certificateDetails.data.fileHash 
+                          certificateId: currentCertificate.certificateId,
+                          originalHash: currentCertificate.fileHash 
                         }}
                         className="bg-[#FF9519] cursor-pointer text-white px-6 py-3 rounded-full flex items-center gap-2 w-fit"
                       >
@@ -225,7 +220,7 @@ const Dashboard = () => {
             <button
               onClick={handleNext}
               disabled={
-                !certificateIds || currentIndex === certificateIds.length - 1
+                !certificateIds?.data || currentIndex === certificateIds.data.length - 1
               }
               className="w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             >

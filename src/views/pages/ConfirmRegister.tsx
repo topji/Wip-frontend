@@ -26,7 +26,9 @@ const ConfirmRegister = () => {
         return;
       }
     }
+  }, [shares, user, navigate, setShares]);
 
+  useEffect(() => {
     const createCertificateCall = async () => {
       try {
         if (shares.length === 0) {
@@ -57,7 +59,7 @@ const ConfirmRegister = () => {
     };
 
     createCertificateCall();
-  }, [user, shares, hash, fileFormat, navigate, setShares]);
+  }, [shares, hash, fileFormat, description, navigate]);
 
   return (
     <main className="flex gap-8 grow">

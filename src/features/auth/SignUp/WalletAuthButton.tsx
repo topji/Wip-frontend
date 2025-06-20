@@ -9,12 +9,8 @@ import { AxiosError } from "axios";
 import { useUser } from "@/context/UserContext";
 
 const WalletAuthButton = ({
-  tab,
-  setTab,
   setError,
 }: {
-  tab: "signup" | "signin";
-  setTab: React.Dispatch<React.SetStateAction<"signup" | "signin">>;
   setError: (error: string) => void;
 }) => {
   const { openConnectModal } = useConnectModal();
@@ -27,8 +23,8 @@ const WalletAuthButton = ({
   const { setUser } = useUser();
 
   const createUserMutation = useCreateRainbowKitUser({
-    onSuccess: (_, varriables) => {
-      handleConnect(varriables.userAddress);
+    onSuccess: (_, variables) => {
+      handleConnect(variables.userAddress);
     },
     onError: (error) => {
       setError(error.message);
@@ -37,31 +33,31 @@ const WalletAuthButton = ({
 
   useAccountEffect({
     onConnect: async (data) => {
-      if (tab === "signup") {
-        const payload = {
-          username: generateUserName(data.address),
-          email: "NA",
-          company: "NA",
-          tags: paramsCategory?.split(",") ?? [],
-          userAddress: data.address,
-        };
-        createUserMutation.mutate(payload);
-      } else {
-        try {
-          const userExistsResponse = await userExists(data.address);
-          if (userExistsResponse.success) {
-            handleConnect(data.address);
-          } else {
-            setError("User does not exist");
-            disconnect();
-            setTab("signup");
-          }
-        } catch (error) {
-          setError(
-            error instanceof AxiosError ? error.message : "Unknown error"
-          );
-          disconnect();
+      try {
+        setError("");
+        
+        // Check if user exists
+        const userExistsResponse = await userExists(data.address);
+        
+        if (userExistsResponse.success) {
+          // User exists - sign them in
+          handleConnect(data.address);
+        } else {
+          // User doesn't exist - create account
+          const payload = {
+            username: generateUserName(data.address),
+            email: "NA",
+            company: "NA",
+            tags: paramsCategory?.split(",") ?? [],
+            userAddress: data.address,
+          };
+          createUserMutation.mutate(payload);
         }
+      } catch (error) {
+        setError(
+          error instanceof AxiosError ? error.message : "Authentication failed"
+        );
+        disconnect();
       }
     },
   });
@@ -94,16 +90,14 @@ const WalletAuthButton = ({
           openConnectModal?.();
         }
       }}
-      className="w-full flex items-center justify-center bg-orange-500 text-white py-3 rounded-md font-medium"
+      className="w-full flex items-center justify-center bg-orange-500 text-white py-3 rounded-md font-medium hover:bg-orange-600 disabled:opacity-50"
     >
       {isLoading ? (
         <span className="animate-spin text-white">
           <img src={loader} alt="loading..." />
         </span>
-      ) : tab === "signup" ? (
-        "Sign up with Wallet"
       ) : (
-        "Login with Wallet"
+        "Connect Wallet"
       )}
     </button>
   );

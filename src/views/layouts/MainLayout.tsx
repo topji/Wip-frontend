@@ -6,7 +6,7 @@ const MainLayout = () => {
       <Outlet />
       <footer className="border-t border-black/30 px-31.5 py-9 flex items-center justify-between">
         <p className=" text-[0.875rem] text-[#182537]/70 ">
-          © 2023 Worldiip LLp. All rights reserved.
+          © 2025 Worldip.ai || All rights reserved.
         </p>
         <ul className="flex items-center text-[0.75rem] text-[#182537]/70 font-medium">
           <li className="px-5 border-r border-[#182537]/20">Privacy policy</li>

@@ -32,28 +32,35 @@ const DashboardLayout = () => {
         <div>
           <ul className="p-8 w-fit px-16 space-y-8 whitespace-nowrap">
             <li className="flex gap-2 items-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                className="w-6 h-6"
+              <a 
+                href="https://worldip.ai" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex gap-2 items-center hover:text-[#5865F2] transition-colors cursor-pointer"
               >
-                <path
-                  d="M17.8363 10.1653V11.3986C17.8363 14.5612 17.8363 16.1426 16.8864 17.125C15.9366 18.1076 14.4078 18.1076 11.3502 18.1076H8.10718C5.04961 18.1076 3.52083 18.1076 2.57096 17.125C1.62109 16.1426 1.62109 14.5612 1.62109 11.3986V10.1653C1.62109 8.30996 1.62109 7.38228 2.04204 6.61324C2.46299 5.84421 3.23203 5.36692 4.77011 4.41234L6.39163 3.40598C8.0175 2.39692 8.83046 1.8924 9.7287 1.8924C10.6269 1.8924 11.4399 2.39692 13.0658 3.40598L14.6873 4.41234C16.2254 5.36692 16.9944 5.84421 17.4154 6.61324"
-                  stroke="#1C274C"
-                  strokeWidth="1.21614"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M12.1614 14.8646H7.29688"
-                  stroke="#1C274C"
-                  strokeWidth="1.21614"
-                  strokeLinecap="round"
-                />
-              </svg>
-              Home
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  className="w-6 h-6"
+                >
+                  <path
+                    d="M17.8363 10.1653V11.3986C17.8363 14.5612 17.8363 16.1426 16.8864 17.125C15.9366 18.1076 14.4078 18.1076 11.3502 18.1076H8.10718C5.04961 18.1076 3.52083 18.1076 2.57096 17.125C1.62109 16.1426 1.62109 14.5612 1.62109 11.3986V10.1653C1.62109 8.30996 1.62109 7.38228 2.04204 6.61324C2.46299 5.84421 3.23203 5.36692 4.77011 4.41234L6.39163 3.40598C8.0175 2.39692 8.83046 1.8924 9.7287 1.8924C10.6269 1.8924 11.4399 2.39692 13.0658 3.40598L14.6873 4.41234C16.2254 5.36692 16.9944 5.84421 17.4154 6.61324"
+                    stroke="#1C274C"
+                    strokeWidth="1.21614"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M12.1614 14.8646H7.29688"
+                    stroke="#1C274C"
+                    strokeWidth="1.21614"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                Home
+              </a>
             </li>
             <li className="flex gap-2 items-center">
               <svg
@@ -238,7 +245,7 @@ const DashboardLayout = () => {
       </div>
       <footer className="border-t border-black/30 px-31.5 py-9 flex items-center justify-between">
         <p className=" text-[0.875rem] text-[#182537]/70 ">
-          © 2023 Worldiip LLp. All rights reserved.
+          © 2025 Worldip.ai || All rights reserved.
         </p>
         <ul className="flex items-center text-[0.75rem] text-[#182537]/70 font-medium">
           <li className="px-5 border-r border-[#182537]/20">Privacy policy</li>

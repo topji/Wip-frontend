@@ -24,6 +24,10 @@ const AuthWithGoogle = ({
     const handleOAuthCallback = async () => {
       try {
         console.log("Handling OAuth callback...");
+        
+        // Wait a bit for Magic SDK to process the OAuth response
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
         const res = await magic?.oauth2.getRedirectResult();
         console.log("OAuth redirect result:", res);
         
@@ -80,6 +84,60 @@ const AuthWithGoogle = ({
               setError("Failed to create user account");
             }
           }
+        } else {
+          console.log("No OAuth result found, checking if we need to retry...");
+          // If no result, it might be that Magic SDK hasn't processed it yet
+          // Let's try again after a short delay
+          setTimeout(async () => {
+            try {
+              const retryRes = await magic?.oauth2.getRedirectResult();
+              console.log("Retry OAuth result:", retryRes);
+              if (retryRes) {
+                // Process the result
+                const userInfo = retryRes.magic.userMetadata;
+                if (userInfo?.publicAddress) {
+                  // Check if user exists and handle accordingly
+                  const userExistsResponse = await userExists(userInfo.publicAddress);
+                  if (userExistsResponse.success) {
+                    const userPayload = {
+                      email: userInfo?.email ?? "",
+                      publicAddress: userInfo.publicAddress,
+                      username: generateUserName(userInfo.publicAddress),
+                      walletType: "magic-link" as const,
+                    };
+                    setUser(userPayload);
+                    navigate("/dashboard");
+                  } else {
+                    // Create new user
+                    const createUserPayload = {
+                      username: generateUserName(userInfo.publicAddress),
+                      email: userInfo?.email ?? "NA",
+                      company: "NA",
+                      tags: paramsCategory?.split(",") ?? [],
+                      userAddress: userInfo.publicAddress,
+                    };
+                    
+                    const response = await createUser(createUserPayload);
+                    if (response.data.success) {
+                      const userPayload = {
+                        email: userInfo?.email ?? "",
+                        publicAddress: userInfo.publicAddress,
+                        username: generateUserName(userInfo.publicAddress),
+                        walletType: "magic-link" as const,
+                      };
+                      setUser(userPayload);
+                      navigate("/dashboard");
+                    } else {
+                      setError("Failed to create user account");
+                    }
+                  }
+                }
+              }
+            } catch (retryError) {
+              console.error("Retry OAuth error:", retryError);
+              setError("Failed to process Google authentication");
+            }
+          }, 2000);
         }
       } catch (error) {
         console.error("OAuth callback error:", error);
@@ -90,10 +148,17 @@ const AuthWithGoogle = ({
     // Check if we're returning from OAuth redirect
     const urlParams = new URLSearchParams(window.location.search);
     const magicCredential = urlParams.get('magic_credential');
+    const oauthCode = urlParams.get('code');
+    const oauthState = urlParams.get('state');
+    
     console.log("URL params:", Object.fromEntries(urlParams.entries()));
     console.log("Magic credential:", magicCredential);
+    console.log("OAuth code:", oauthCode);
+    console.log("OAuth state:", oauthState);
     
-    if (magicCredential) {
+    // Check for either Magic credential or Google OAuth response
+    if (magicCredential || (oauthCode && oauthState)) {
+      console.log("OAuth callback detected, processing...");
       handleOAuthCallback();
     }
   }, [magic, setUser, navigate, setError, paramsCategory]);

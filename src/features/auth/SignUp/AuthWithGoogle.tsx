@@ -4,8 +4,9 @@ import { useMagic } from "@/hooks/useMagic";
 import { userExists } from "@/services/api/userServices";
 import { generateUserName } from "@/utils/generateUserName";
 import { AxiosError } from "axios";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
+import React from "react";
 
 const AuthWithGoogle = ({
   setError,
@@ -19,36 +20,82 @@ const AuthWithGoogle = ({
   const paramsCategory = searchParams.get("category");
   const navigate = useNavigate();
 
-  // Handle OAuth callback on component mount
-  useEffect(() => {
-    const handleOAuthCallback = async () => {
-      try {
-        console.log("Handling OAuth callback...");
-        
-        // Wait a bit for Magic SDK to process the OAuth response
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const res = await magic?.oauth2.getRedirectResult();
-        console.log("OAuth redirect result:", res);
-        
-        if (res) {
-          const userInfo = res.magic.userMetadata;
-          console.log("User info from OAuth:", userInfo);
-          
-          if (!userInfo?.publicAddress) {
-            console.error("No public address found in user info");
-            setError("Failed to get wallet address from Google authentication");
-            return;
-          }
+  const handleGoogleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      setError("");
+      
+      console.log("Starting Magic Login with Google...");
+      console.log("Magic instance:", magic);
+      
+      // Use Magic's login widget with Google
+      const result = await magic?.oauth2.loginWithRedirect({
+        provider: "google",
+        redirectURI: window.location.origin,
+      });
+      
+      console.log("Magic login result:", result);
+      
+      // The page will redirect to Google, then back to our app
+      // Magic will handle the OAuth flow automatically
+      
+    } catch (error) {
+      console.error("Magic login error:", error);
+      setError(error instanceof AxiosError ? error.message : "Failed to start Google authentication");
+      setLoading(false);
+    }
+  };
 
-          // Check if user exists
-          console.log("Checking if user exists...");
-          const userExistsResponse = await userExists(userInfo.publicAddress);
-          console.log("User exists response:", userExistsResponse);
+  // Handle the redirect result when component mounts
+  const handleRedirectResult = async () => {
+    try {
+      console.log("Checking for redirect result...");
+      
+      const result = await magic?.oauth2.getRedirectResult();
+      console.log("Redirect result:", result);
+      
+      if (result) {
+        const userInfo = result.magic.userMetadata;
+        console.log("User info from Magic:", userInfo);
+        
+        if (!userInfo?.publicAddress) {
+          console.error("No public address found in user info");
+          setError("Failed to get wallet address from Google authentication");
+          return;
+        }
+
+        // Check if user exists
+        console.log("Checking if user exists...");
+        const userExistsResponse = await userExists(userInfo.publicAddress);
+        console.log("User exists response:", userExistsResponse);
+        
+        if (userExistsResponse.success) {
+          // User exists - sign them in
+          console.log("User exists, signing in...");
+          const userPayload = {
+            email: userInfo?.email ?? "",
+            publicAddress: userInfo.publicAddress,
+            username: generateUserName(userInfo.publicAddress),
+            walletType: "magic-link" as const,
+          };
+          setUser(userPayload);
+          navigate("/dashboard");
+        } else {
+          // User doesn't exist - create account and redirect to dashboard
+          console.log("User doesn't exist, creating account...");
+          const createUserPayload = {
+            username: generateUserName(userInfo.publicAddress),
+            email: userInfo?.email ?? "NA",
+            company: "NA",
+            tags: paramsCategory?.split(",") ?? [],
+            userAddress: userInfo.publicAddress,
+          };
           
-          if (userExistsResponse.success) {
-            // User exists - sign them in
-            console.log("User exists, signing in...");
+          const response = await createUser(createUserPayload);
+          console.log("Create user response:", response);
+          
+          if (response.data.success) {
             const userPayload = {
               email: userInfo?.email ?? "",
               publicAddress: userInfo.publicAddress,
@@ -58,142 +105,25 @@ const AuthWithGoogle = ({
             setUser(userPayload);
             navigate("/dashboard");
           } else {
-            // User doesn't exist - create account and redirect to dashboard
-            console.log("User doesn't exist, creating account...");
-            const createUserPayload = {
-              username: generateUserName(userInfo.publicAddress),
-              email: userInfo?.email ?? "NA",
-              company: "NA",
-              tags: paramsCategory?.split(",") ?? [],
-              userAddress: userInfo.publicAddress,
-            };
-            
-            const response = await createUser(createUserPayload);
-            console.log("Create user response:", response);
-            
-            if (response.data.success) {
-              const userPayload = {
-                email: userInfo?.email ?? "",
-                publicAddress: userInfo.publicAddress,
-                username: generateUserName(userInfo.publicAddress),
-                walletType: "magic-link" as const,
-              };
-              setUser(userPayload);
-              navigate("/dashboard");
-            } else {
-              setError("Failed to create user account");
-            }
+            setError("Failed to create user account");
           }
-        } else {
-          console.log("No OAuth result found, checking if we need to retry...");
-          // If no result, it might be that Magic SDK hasn't processed it yet
-          // Let's try again after a short delay
-          setTimeout(async () => {
-            try {
-              const retryRes = await magic?.oauth2.getRedirectResult();
-              console.log("Retry OAuth result:", retryRes);
-              if (retryRes) {
-                // Process the result
-                const userInfo = retryRes.magic.userMetadata;
-                if (userInfo?.publicAddress) {
-                  // Check if user exists and handle accordingly
-                  const userExistsResponse = await userExists(userInfo.publicAddress);
-                  if (userExistsResponse.success) {
-                    const userPayload = {
-                      email: userInfo?.email ?? "",
-                      publicAddress: userInfo.publicAddress,
-                      username: generateUserName(userInfo.publicAddress),
-                      walletType: "magic-link" as const,
-                    };
-                    setUser(userPayload);
-                    navigate("/dashboard");
-                  } else {
-                    // Create new user
-                    const createUserPayload = {
-                      username: generateUserName(userInfo.publicAddress),
-                      email: userInfo?.email ?? "NA",
-                      company: "NA",
-                      tags: paramsCategory?.split(",") ?? [],
-                      userAddress: userInfo.publicAddress,
-                    };
-                    
-                    const response = await createUser(createUserPayload);
-                    if (response.data.success) {
-                      const userPayload = {
-                        email: userInfo?.email ?? "",
-                        publicAddress: userInfo.publicAddress,
-                        username: generateUserName(userInfo.publicAddress),
-                        walletType: "magic-link" as const,
-                      };
-                      setUser(userPayload);
-                      navigate("/dashboard");
-                    } else {
-                      setError("Failed to create user account");
-                    }
-                  }
-                }
-              }
-            } catch (retryError) {
-              console.error("Retry OAuth error:", retryError);
-              setError("Failed to process Google authentication");
-            }
-          }, 2000);
         }
-      } catch (error) {
-        console.error("OAuth callback error:", error);
-        setError(error instanceof AxiosError ? error.message : "Google authentication failed");
       }
-    };
-
-    // Check if we're returning from OAuth redirect
-    const urlParams = new URLSearchParams(window.location.search);
-    const magicCredential = urlParams.get('magic_credential');
-    const oauthCode = urlParams.get('code');
-    const oauthState = urlParams.get('state');
-    
-    console.log("URL params:", Object.fromEntries(urlParams.entries()));
-    console.log("Magic credential:", magicCredential);
-    console.log("OAuth code:", oauthCode);
-    console.log("OAuth state:", oauthState);
-    
-    // Check for either Magic credential or Google OAuth response
-    if (magicCredential || (oauthCode && oauthState)) {
-      console.log("OAuth callback detected, processing...");
-      handleOAuthCallback();
-    }
-  }, [magic, setUser, navigate, setError, paramsCategory]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      setLoading(true);
-      setError("");
-      
-      console.log("Starting Google OAuth redirect...");
-      console.log("Magic instance:", magic);
-      console.log("Current origin:", window.location.origin);
-      
-      // Start OAuth redirect flow
-      await magic?.oauth2.loginWithRedirect({
-        provider: "google",
-        redirectURI: window.location.origin, // Use current origin as redirect URI
-      });
-      
-      console.log("OAuth redirect initiated successfully");
-      // The page will redirect to Google, then back to our app
-      // The useEffect above will handle the callback
-      
     } catch (error) {
-      console.error("OAuth redirect error:", error);
-      setError(error instanceof AxiosError ? error.message : "Failed to start Google authentication");
-      setLoading(false);
+      console.error("Redirect result error:", error);
+      setError(error instanceof AxiosError ? error.message : "Failed to process authentication");
     }
   };
+
+  // Check for redirect result on component mount
+  React.useEffect(() => {
+    handleRedirectResult();
+  }, [magic, setUser, navigate, setError, paramsCategory]);
 
   return (
     <button
       type="button"
-      onClick={handleSubmit}
+      onClick={handleGoogleLogin}
       disabled={loading}
       className="w-full p-3 border rounded-md flex justify-center items-center gap-3 hover:bg-gray-50"
     >

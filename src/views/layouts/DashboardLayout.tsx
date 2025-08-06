@@ -5,7 +5,8 @@ import logo from "/World_IP_logo.svg";
 const DashboardLayout = () => {
   return (
     <div className="max-w-8xl mx-auto min-h-dvh bg-white flex flex-col">
-      <div className="flex items-center justify-between  px-16">
+      {/* Top Navbar */}
+      <div className="flex items-center justify-between px-16 sticky top-0 z-30 bg-white" style={{ boxShadow: '0 2px 8px 0 rgba(0,0,0,0.03)' }}>
         <div className="self-start pb-8 pt-12">
           <img src={logo} alt="logo" />
         </div>
@@ -28,12 +29,13 @@ const DashboardLayout = () => {
           <WalletButton />
         </div>
       </div>
-      <div className="flex grow">
-        <div>
+      <div className="flex grow min-h-0">
+        {/* Sidebar */}
+        <div className="sticky top-0 h-[calc(100vh-0px)] bg-white z-20 flex-shrink-0">
           <ul className="p-8 w-fit px-16 space-y-8 whitespace-nowrap">
             <li className="flex gap-2 items-center">
               <a 
-                href="https://worldip.ai" 
+                href="https://app.worldip.ai" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex gap-2 items-center hover:text-[#5865F2] transition-colors cursor-pointer"
@@ -241,7 +243,10 @@ const DashboardLayout = () => {
             </li>
           </ul>
         </div>
-        <Outlet />
+        {/* Main Content (scrollable) */}
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          <Outlet />
+        </div>
       </div>
       <footer className="border-t border-black/30 px-31.5 py-9 flex items-center justify-between">
         <p className=" text-[0.875rem] text-[#182537]/70 ">

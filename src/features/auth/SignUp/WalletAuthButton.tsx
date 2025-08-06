@@ -44,20 +44,20 @@ const WalletAuthButton = ({
           handleConnect(data.address);
         } else {
           // User doesn't exist - create account
-          const payload = {
-            username: generateUserName(data.address),
-            email: "NA",
-            company: "NA",
-            tags: paramsCategory?.split(",") ?? [],
-            userAddress: data.address,
-          };
-          createUserMutation.mutate(payload);
-        }
-      } catch (error) {
-        setError(
+        const payload = {
+          username: generateUserName(data.address),
+          email: "NA",
+          company: "NA",
+          tags: paramsCategory?.split(",") ?? [],
+          userAddress: data.address,
+        };
+        createUserMutation.mutate(payload);
+          }
+        } catch (error) {
+          setError(
           error instanceof AxiosError ? error.message : "Authentication failed"
-        );
-        disconnect();
+          );
+          disconnect();
       }
     },
   });

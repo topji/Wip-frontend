@@ -63,7 +63,7 @@ export const useCreateMagicUser = (
                 walletType: "magic-link" as const,
             };
             setUser(userPayload);
-            navigate("/create-hash");
+            navigate("/dashboard");
         },
         ...mutationConfig,
     });

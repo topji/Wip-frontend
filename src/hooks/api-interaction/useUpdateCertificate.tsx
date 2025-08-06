@@ -2,16 +2,24 @@ import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 
 interface UpdateCertificateRequest {
-  certificateId: string;
+  certificateId: number;
   updatedFileHash: string;
   updatedMetadataURI: string;
   updatedDescription: string;
+}
+
+interface CertificateUpdate {
+  fileHash: string;
+  description: string;
+  timestamp: number;
+  transactionHash: string;
 }
 
 interface UpdateCertificateResponse {
   success: boolean;
   message: string;
   transaction: string;
+  updateEntry: CertificateUpdate;
 }
 
 const updateCertificate = async (payload: UpdateCertificateRequest): Promise<UpdateCertificateResponse> => {

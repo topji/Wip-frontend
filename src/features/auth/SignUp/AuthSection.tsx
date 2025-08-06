@@ -58,6 +58,16 @@ export const AuthSection = () => {
       
       if (userExistsResponse.success) {
         // User exists - sign them in
+          const userPayload = {
+          email: email,
+          publicAddress: walletAddress,
+          username: generateUserName(walletAddress),
+            walletType: "magic-link" as const,
+          };
+          setUser(userPayload);
+          navigate("/dashboard");
+        } else {
+        // User doesn't exist - still take them to dashboard
         const userPayload = {
           email: email,
           publicAddress: walletAddress,
@@ -66,16 +76,6 @@ export const AuthSection = () => {
         };
         setUser(userPayload);
         navigate("/dashboard");
-      } else {
-        // User doesn't exist - redirect to registration
-        const userPayload = {
-          email: email,
-          publicAddress: walletAddress,
-          username: generateUserName(walletAddress),
-          walletType: "magic-link" as const,
-        };
-        setUser(userPayload);
-        navigate("/create-hash");
       }
     } catch (error) {
       setError("Failed to check user status");
@@ -113,35 +113,35 @@ export const AuthSection = () => {
       <div className="space-y-6">
         {/* Email Authentication */}
         <form onSubmit={handleEmailAuth} className="space-y-6">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-2">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium mb-2">
               Email Address
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
               placeholder="Enter your email address"
-              value={email}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border rounded-md"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
+                value={email}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border rounded-md"
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
             className="w-full flex items-center justify-center bg-blue-600 text-white py-3 rounded-md font-medium hover:bg-blue-700 disabled:opacity-50"
-          >
-            {loading ? (
-              <span className="animate-spin text-white">
-                <img src={loader} alt="loading..." />
-              </span>
-            ) : (
+            >
+              {loading ? (
+                <span className="animate-spin text-white">
+                  <img src={loader} alt="loading..." />
+                </span>
+              ) : (
               "Continue with Email"
-            )}
-          </button>
-        </form>
+              )}
+            </button>
+          </form>
 
         <div className="relative text-center">
           <div className="absolute inset-0 flex items-center">

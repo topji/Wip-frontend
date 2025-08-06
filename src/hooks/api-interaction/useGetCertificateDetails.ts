@@ -6,34 +6,46 @@ export interface CertificateOwner {
     percentage: number;
 }
 
-export interface CertificateData {
-    _id: string;
-    certificateId: number;
+export interface CertificateUpdate {
     fileHash: string;
+    description: string;
+    timestamp: number;
+    transactionHash: string;
+}
+
+export interface CertificateDetails {
+    id: number;
+    fileHash: string;
+    metadataURI: string;
     description: string;
     fileFormat: string;
     timestamp: number;
     owners: CertificateOwner[];
+    updates: CertificateUpdate[];
+    updatedFileHashes: string[];
+    transactionHash: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
-interface CertificatesResponse {
+interface CertificateDetailsResponse {
     success: boolean;
-    data: CertificateData[];
+    data: CertificateDetails;
 }
 
-const getCertificateIds = async (userAddress: string): Promise<CertificatesResponse> => {
+const getCertificateDetails = async (certificateId: string): Promise<CertificateDetailsResponse> => {
     const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/certificates/user/${userAddress}`
+        `${import.meta.env.VITE_API_URL}/certificates/${certificateId}`
     );
     return response.data;
 };
 
-export const useGetCertificateIds = (userAddress: string) => {
+export const useGetCertificateDetails = (certificateId: string) => {
     const { data, isLoading, error } = useQuery({
-        queryKey: ["certificateIds", userAddress],
-        queryFn: () => getCertificateIds(userAddress),
-        enabled: !!userAddress,
+        queryKey: ["certificateDetails", certificateId],
+        queryFn: () => getCertificateDetails(certificateId),
+        enabled: !!certificateId,
     });
 
     return { data, isLoading, error };
-}; 
+};

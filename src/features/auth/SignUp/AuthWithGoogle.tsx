@@ -4,7 +4,7 @@ import { useMagic } from "@/hooks/useMagic";
 import { userExists } from "@/services/api/userServices";
 import { generateUserName } from "@/utils/generateUserName";
 import { AxiosError } from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 
 const AuthWithGoogle = ({
@@ -19,63 +19,108 @@ const AuthWithGoogle = ({
   const paramsCategory = searchParams.get("category");
   const navigate = useNavigate();
 
+  // Handle OAuth callback on component mount
+  useEffect(() => {
+    const handleOAuthCallback = async () => {
+      try {
+        console.log("Handling OAuth callback...");
+        const res = await magic?.oauth2.getRedirectResult();
+        console.log("OAuth redirect result:", res);
+        
+        if (res) {
+          const userInfo = res.magic.userMetadata;
+          console.log("User info from OAuth:", userInfo);
+          
+          if (!userInfo?.publicAddress) {
+            console.error("No public address found in user info");
+            setError("Failed to get wallet address from Google authentication");
+            return;
+          }
+
+          // Check if user exists
+          console.log("Checking if user exists...");
+          const userExistsResponse = await userExists(userInfo.publicAddress);
+          console.log("User exists response:", userExistsResponse);
+          
+          if (userExistsResponse.success) {
+            // User exists - sign them in
+            console.log("User exists, signing in...");
+            const userPayload = {
+              email: userInfo?.email ?? "",
+              publicAddress: userInfo.publicAddress,
+              username: generateUserName(userInfo.publicAddress),
+              walletType: "magic-link" as const,
+            };
+            setUser(userPayload);
+            navigate("/dashboard");
+          } else {
+            // User doesn't exist - create account and redirect to dashboard
+            console.log("User doesn't exist, creating account...");
+            const createUserPayload = {
+              username: generateUserName(userInfo.publicAddress),
+              email: userInfo?.email ?? "NA",
+              company: "NA",
+              tags: paramsCategory?.split(",") ?? [],
+              userAddress: userInfo.publicAddress,
+            };
+            
+            const response = await createUser(createUserPayload);
+            console.log("Create user response:", response);
+            
+            if (response.data.success) {
+              const userPayload = {
+                email: userInfo?.email ?? "",
+                publicAddress: userInfo.publicAddress,
+                username: generateUserName(userInfo.publicAddress),
+                walletType: "magic-link" as const,
+              };
+              setUser(userPayload);
+              navigate("/dashboard");
+            } else {
+              setError("Failed to create user account");
+            }
+          }
+        }
+      } catch (error) {
+        console.error("OAuth callback error:", error);
+        setError(error instanceof AxiosError ? error.message : "Google authentication failed");
+      }
+    };
+
+    // Check if we're returning from OAuth redirect
+    const urlParams = new URLSearchParams(window.location.search);
+    const magicCredential = urlParams.get('magic_credential');
+    console.log("URL params:", Object.fromEntries(urlParams.entries()));
+    console.log("Magic credential:", magicCredential);
+    
+    if (magicCredential) {
+      handleOAuthCallback();
+    }
+  }, [magic, setUser, navigate, setError, paramsCategory]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setLoading(true);
       setError("");
       
+      console.log("Starting Google OAuth redirect...");
+      console.log("Magic instance:", magic);
+      console.log("Current origin:", window.location.origin);
+      
+      // Start OAuth redirect flow
       await magic?.oauth2.loginWithRedirect({
         provider: "google",
-        redirectURI: import.meta.env.VITE_GOOGLE_REDIRECT_URL,
+        redirectURI: window.location.origin, // Use current origin as redirect URI
       });
       
-      const res = await magic?.oauth2.getRedirectResult();
-      const userInfo = res?.magic.userMetadata;
+      console.log("OAuth redirect initiated successfully");
+      // The page will redirect to Google, then back to our app
+      // The useEffect above will handle the callback
       
-      if (!userInfo?.publicAddress) {
-        setError("Failed to get wallet address");
-        return;
-      }
-
-      // Check if user exists
-      const userExistsResponse = await userExists(userInfo.publicAddress);
-      
-      if (userExistsResponse.success) {
-        // User exists - sign them in
-        const userPayload = {
-          email: userInfo?.email ?? "",
-          publicAddress: userInfo.publicAddress,
-          username: generateUserName(userInfo.publicAddress),
-          walletType: "magic-link" as const,
-        };
-        setUser(userPayload);
-        navigate("/dashboard");
-      } else {
-        // User doesn't exist - create account and redirect to dashboard
-        const createUserPayload = {
-          username: generateUserName(userInfo.publicAddress),
-          email: userInfo?.email ?? "NA",
-          company: "NA",
-          tags: paramsCategory?.split(",") ?? [],
-          userAddress: userInfo.publicAddress,
-        };
-        
-        const response = await createUser(createUserPayload);
-        if (response.data.success) {
-          const userPayload = {
-            email: userInfo?.email ?? "",
-            publicAddress: userInfo.publicAddress,
-            username: generateUserName(userInfo.publicAddress),
-            walletType: "magic-link" as const,
-          };
-          setUser(userPayload);
-          navigate("/dashboard");
-        }
-      }
     } catch (error) {
-      setError(error instanceof AxiosError ? error.message : "Authentication failed");
-    } finally {
+      console.error("OAuth redirect error:", error);
+      setError(error instanceof AxiosError ? error.message : "Failed to start Google authentication");
       setLoading(false);
     }
   };

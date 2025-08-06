@@ -21,8 +21,9 @@ export interface CreateCertificateRequest {
 export interface CreateCertificateResponse {
     success: boolean;
     message: string;
-    transaction: string;
-    certificateId: string;
+    transaction?: string;
+    certificateId?: string;
+    existingCertificateId?: number;
 }
 
 export const createCertificate = async (payload: CreateCertificateRequest): Promise<CreateCertificateResponse> => {

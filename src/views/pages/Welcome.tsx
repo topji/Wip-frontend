@@ -1,13 +1,20 @@
 import illustration from "@/assets/illustrations/1.svg";
 import { useCategories } from "@/hooks/useCategories";
 import logo from "/World_IP_logo.svg";
-import { Link, useSearchParams } from "react-router";
+import { Link, useSearchParams, Navigate } from "react-router";
 import { cn } from "@/utils/cn";
+import { useUser } from "@/context/UserContext";
 
 const Welcome = () => {
   const { categories } = useCategories();
   const [searchParams, setSearchParams] = useSearchParams();
   const paramCategory = searchParams.get("category");
+  const { isAuthenticated } = useUser();
+
+  // Redirect logged-in users to dashboard
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const handleCategoryClick = (currentCategory: string) => {
     const newCategory = paramCategory?.split(",").includes(currentCategory)

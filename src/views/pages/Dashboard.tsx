@@ -34,7 +34,7 @@ const formatDate = (timestamp: number | string | undefined): string => {
 };
 
 // Helper function to get the last updated timestamp
-const getLastUpdatedTimestamp = (certificate: any, certificateDetails: any): number => {
+const getLastUpdatedTimestamp = (certificate: any): number => {
   // Always return the original creation timestamp
   return certificate.timestamp;
 };
@@ -118,20 +118,19 @@ const SortedCertificatesList = ({ certificates }: { certificates: any[] }) => {
     }));
 
     return certificatesWithDetails.sort((a, b) => {
-      const aLastUpdated = getLastUpdatedTimestamp(a.certificate, a.details);
-      const bLastUpdated = getLastUpdatedTimestamp(b.certificate, b.details);
+      const aLastUpdated = getLastUpdatedTimestamp(a.certificate);
+      const bLastUpdated = getLastUpdatedTimestamp(b.certificate);
       return bLastUpdated - aLastUpdated; // Sort in descending order (newest first)
     });
   }, [certificates, certificateDetailsHooks]);
 
   return (
     <div className="flex flex-col gap-6">
-      {sortedCertificates.map(({ certificate, details, isLoading }) => (
+      {sortedCertificates.map(({ certificate, details }) => (
         <CertificateCard 
           key={certificate._id} 
           certificate={certificate} 
           certificateDetails={details}
-          isLoadingDetails={isLoading}
         />
       ))}
     </div>
@@ -252,19 +251,17 @@ const VersionHistoryModal = ({
 // Separate component for each certificate card to handle individual certificate details
 const CertificateCard = ({ 
   certificate, 
-  certificateDetails, 
-  isLoadingDetails 
+  certificateDetails 
 }: { 
   certificate: any; 
   certificateDetails: any; 
-  isLoadingDetails: boolean; 
 }) => {
   const [showVersionHistory, setShowVersionHistory] = useState(false);
 
   // Get the last updated timestamp
   const lastUpdatedTimestamp = useMemo(() => {
-    return getLastUpdatedTimestamp(certificate, certificateDetails);
-  }, [certificate, certificateDetails]);
+    return getLastUpdatedTimestamp(certificate);
+  }, [certificate]);
 
   return (
     <>

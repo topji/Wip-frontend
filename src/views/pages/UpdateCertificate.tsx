@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import logo from "/World_IP_logo.svg";
 import { useRef } from "react";
 import { TextArea } from "@/components/TextArea/TextArea";

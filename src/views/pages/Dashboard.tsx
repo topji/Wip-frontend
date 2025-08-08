@@ -154,6 +154,42 @@ const VersionHistoryModal = ({
 }) => {
   if (!isOpen) return null;
 
+  // Get all versions sorted by timestamp (oldest first)
+  const allVersions = useMemo(() => {
+    const versions: Array<{
+      type: 'original' | 'update';
+      fileHash: string;
+      description: string;
+      timestamp: number;
+      fileFormat?: string;
+      updateNumber?: number;
+    }> = [];
+    
+    // Add original version
+    versions.push({
+      type: 'original',
+      fileHash: certificate.fileHash,
+      description: certificate.description,
+      timestamp: certificate.timestamp,
+      fileFormat: certificate.fileFormat
+    });
+    
+    // Add all updates
+    const updates = certificateDetails?.data?.updates || [];
+    updates.forEach((update: any, index: number) => {
+      versions.push({
+        type: 'update',
+        fileHash: update.fileHash,
+        description: update.description,
+        timestamp: update.timestamp,
+        updateNumber: index + 1
+      });
+    });
+    
+    // Sort by timestamp (oldest first)
+    return versions.sort((a, b) => a.timestamp - b.timestamp);
+  }, [certificate, certificateDetails]);
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
@@ -176,78 +212,116 @@ const VersionHistoryModal = ({
         {/* Content */}
         <div className="p-6">
           <div className="space-y-4">
-            {/* Original Version */}
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-white">
-                    <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-green-800">Original Version</h3>
-                  <p className="text-sm text-green-600">{formatDate(certificate.timestamp)}</p>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div>
-                  <span className="text-xs font-medium text-green-700">Description:</span>
-                  <p className="text-sm text-green-800">{certificate.description}</p>
-                </div>
-                <div>
-                  <span className="text-xs font-medium text-green-700">File Hash:</span>
-                  <p className="text-sm font-mono text-green-800 break-all">{certificate.fileHash}</p>
-                </div>
-                <div>
-                  <span className="text-xs font-medium text-green-700">File Format:</span>
-                  <p className="text-sm text-green-800">{certificate.fileFormat}</p>
-                </div>
-              </div>
-                </div>
-
-            {/* Updated Versions */}
-            {certificateDetails?.data?.updates && certificateDetails.data.updates.length > 0 ? (
-              certificateDetails.data.updates.map((update: any, index: number) => (
-                <div key={index} className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-white">
+            {allVersions.map((version, index) => (
+              <div key={index} className={`border rounded-lg p-4 ${
+                version.type === 'original' 
+                  ? 'bg-green-50 border-green-200' 
+                  : index === allVersions.length - 1 
+                    ? 'bg-purple-50 border-purple-200' 
+                    : 'bg-blue-50 border-blue-200'
+              }`}>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                    version.type === 'original' 
+                      ? 'bg-green-500' 
+                      : index === allVersions.length - 1 
+                        ? 'bg-purple-500' 
+                        : 'bg-blue-500'
+                  }`}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-white">
+                      {version.type === 'original' ? (
+                        <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      ) : index === allVersions.length - 1 ? (
+                        <path d="M13 10V3L4 14H11V21L20 10H13Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      ) : (
                         <path d="M4 12L12 4M5.5 4H12V10.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-blue-800">Update #{index + 1}</h3>
-                      <p className="text-sm text-blue-600">{formatDate(update.timestamp)}</p>
-                    </div>
+                      )}
+                    </svg>
                   </div>
-                  <div className="space-y-2">
-                    <div>
-                      <span className="text-xs font-medium text-blue-700">Description:</span>
-                      <p className="text-sm text-blue-800">{update.description}</p>
-                    </div>
-                    <div>
-                      <span className="text-xs font-medium text-blue-700">File Hash:</span>
-                      <p className="text-sm font-mono text-blue-800 break-all">{update.fileHash}</p>
-                    </div>
-                    <div>
-                      <span className="text-xs font-medium text-blue-700">Transaction Hash:</span>
-                      <p className="text-sm font-mono text-blue-800 break-all">{update.transactionHash}</p>
-                    </div>
+                  <div>
+                    <h3 className={`font-semibold ${
+                      version.type === 'original' 
+                        ? 'text-green-800' 
+                        : index === allVersions.length - 1 
+                          ? 'text-purple-800' 
+                          : 'text-blue-800'
+                    }`}>
+                      {version.type === 'original' 
+                        ? 'Original Version' 
+                        : index === allVersions.length - 1 
+                          ? 'Latest Version' 
+                          : `Update #${version.updateNumber}`
+                      }
+                    </h3>
+                    <p className={`text-sm ${
+                      version.type === 'original' 
+                        ? 'text-green-600' 
+                        : index === allVersions.length - 1 
+                          ? 'text-purple-600' 
+                          : 'text-blue-600'
+                    }`}>
+                      {formatDate(version.timestamp)}
+                    </p>
                   </div>
+                </div>
+                <div className="space-y-2">
+                  <div>
+                    <span className={`text-xs font-medium ${
+                      version.type === 'original' 
+                        ? 'text-green-700' 
+                        : index === allVersions.length - 1 
+                          ? 'text-purple-700' 
+                          : 'text-blue-700'
+                    }`}>Description:</span>
+                    <p className={`text-sm ${
+                      version.type === 'original' 
+                        ? 'text-green-800' 
+                        : index === allVersions.length - 1 
+                          ? 'text-purple-800' 
+                          : 'text-blue-800'
+                    }`}>{version.description}</p>
                   </div>
-              ))
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <svg className="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" viewBox="0 0 24 24">
-                  <path d="M9 12H15M12 9V15M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <p className="text-sm">No updates available yet</p>
-                      </div>
-            )}
-                            </div>
-                          </div>
-                      </div>
+                  <div>
+                    <span className={`text-xs font-medium ${
+                      version.type === 'original' 
+                        ? 'text-green-700' 
+                        : index === allVersions.length - 1 
+                          ? 'text-purple-700' 
+                          : 'text-blue-700'
+                    }`}>File Hash:</span>
+                    <p className={`text-sm font-mono break-all ${
+                      version.type === 'original' 
+                        ? 'text-green-800' 
+                        : index === allVersions.length - 1 
+                          ? 'text-purple-800' 
+                          : 'text-blue-800'
+                    }`}>{version.fileHash}</p>
+                  </div>
+                  {version.fileFormat && (
+                    <div>
+                      <span className={`text-xs font-medium ${
+                        version.type === 'original' 
+                          ? 'text-green-700' 
+                          : index === allVersions.length - 1 
+                            ? 'text-purple-700' 
+                            : 'text-blue-700'
+                      }`}>File Format:</span>
+                      <p className={`text-sm ${
+                        version.type === 'original' 
+                          ? 'text-green-800' 
+                          : index === allVersions.length - 1 
+                            ? 'text-purple-800' 
+                            : 'text-blue-800'
+                      }`}>{version.fileFormat}</p>
                     </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -265,6 +339,13 @@ const CertificateCard = ({
   const lastUpdatedTimestamp = useMemo(() => {
     return getLastUpdatedTimestamp(certificate);
   }, [certificate]);
+
+  // Get the latest fileHash (most recent update or original if no updates)
+  const latestFileHash = useMemo(() => {
+    const updates = certificateDetails?.data?.updates || [];
+    const latestUpdate = updates.length > 0 ? updates[updates.length - 1] : null;
+    return latestUpdate ? latestUpdate.fileHash : certificate.fileHash;
+  }, [certificateDetails, certificate]);
 
   return (
     <>
@@ -328,13 +409,13 @@ const CertificateCard = ({
               </div>
             </div>
 
-            {/* Hash ID */}
+            {/* Hash ID - Show latest fileHash */}
             <div className="mb-4">
               <div className="text-xs font-medium text-[#5865F2] mb-1">
                 Hash ID
               </div>
               <div className="text-sm text-gray-700 font-mono bg-gray-50 px-3 py-2 rounded-md break-all">
-                {certificate.fileHash}
+                {latestFileHash}
               </div>
             </div>
 
@@ -380,3 +461,4 @@ const CertificateCard = ({
 };
 
 export default Dashboard;
+

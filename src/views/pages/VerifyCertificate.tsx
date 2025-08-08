@@ -54,7 +54,7 @@ const VerifyCertificate = () => {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <img src={logo} alt="logo" className="h-8" />
-            <WalletButton />
+          <WalletButton />
           </div>
         </div>
       </div>
@@ -102,11 +102,11 @@ const VerifyCertificate = () => {
                   </div>
                 </div>
 
-                <div>
+            <div>
                   <label className="text-xs font-medium text-[#FF9519] mb-1 block">Instructions</label>
                   <p className="text-sm text-gray-700 bg-blue-50 px-3 py-2 rounded-md">
                     Upload the original file or enter the original text to verify this certificate's authenticity.
-                  </p>
+              </p>
                 </div>
               </div>
             </div>
@@ -119,8 +119,8 @@ const VerifyCertificate = () => {
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
                   <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-              </div>
-              <div>
+            </div>
+            <div>
                 <h2 className="text-xl font-semibold text-gray-900">Verify Certificate</h2>
                 <p className="text-sm text-gray-500">Upload original content to verify authenticity</p>
               </div>
@@ -177,11 +177,11 @@ const VerifyCertificate = () => {
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
+            </div>
+          </div>
 
               {/* Content Input */}
-              {fileType === "text" && (
+          {fileType === "text" && (
                 <div>
                   <label className="text-sm font-medium text-gray-900 mb-2 block">
                     Original Text Content
@@ -193,9 +193,9 @@ const VerifyCertificate = () => {
                     className="w-full"
                   />
                 </div>
-              )}
-
-              {fileType === "file" && (
+          )}
+          
+          {fileType === "file" && (
                 <div>
                   <label className="text-sm font-medium text-gray-900 mb-2 block">
                     Original File
@@ -208,43 +208,43 @@ const VerifyCertificate = () => {
                     <p className="text-sm text-gray-600">Click to select the original file</p>
                     <p className="text-xs text-gray-500 mt-1">Must be the exact same file</p>
                   </div>
-                  <input
-                    className="hidden"
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                  />
+            <input
+              className="hidden"
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+            />
                 </div>
-              )}
+          )}
 
               {/* Verification Button */}
-              <button
-                onClick={handleVerify}
+          <button
+            onClick={handleVerify}
                 disabled={processing || (!text && fileType === "text")}
                 className="w-full bg-gradient-to-r from-[#FF9519] to-[#E6850F] disabled:opacity-50 text-white px-6 py-3 rounded-xl flex items-center justify-center gap-2 font-medium transition-all duration-200 hover:shadow-lg disabled:cursor-not-allowed"
-              >
-                {processing ? (
+          >
+            {processing ? (
                   <>
-                    <span className="animate-spin text-white">
-                      <img src={loader} alt="loading..." />
-                    </span>
+              <span className="animate-spin text-white">
+                <img src={loader} alt="loading..." />
+              </span>
                     Verifying Certificate...
                   </>
-                ) : (
-                  <>
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path
+            ) : (
+              <>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path
                         d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
-                        stroke="white"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+                    stroke="white"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
                     Verify Certificate
-                  </>
-                )}
-              </button>
+              </>
+            )}
+          </button>
 
               {/* Verification Info */}
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">

@@ -4,103 +4,12 @@ import logo from "/World_IP_logo.svg";
 import { Link, useSearchParams, Navigate } from "react-router";
 import { cn } from "@/utils/cn";
 import { useUser } from "@/context/UserContext";
-import { useMagic } from "@/hooks/useMagic";
-import { createUser } from "@/hooks/api-interaction/useCreateUser";
-import { userExists } from "@/services/api/userServices";
-import { generateUserName } from "@/utils/generateUserName";
-import { useEffect } from "react";
-import { useNavigate } from "react-router";
 
 const Welcome = () => {
   const { categories } = useCategories();
   const [searchParams, setSearchParams] = useSearchParams();
   const paramCategory = searchParams.get("category");
-  const { isAuthenticated, setUser } = useUser();
-  const { magic } = useMagic();
-  const navigate = useNavigate();
-
-  // Handle OAuth redirect result
-  useEffect(() => {
-    const handleOAuthRedirect = async () => {
-      try {
-        // Check if we're returning from an OAuth redirect
-        const urlParams = new URLSearchParams(window.location.search);
-        const hasOAuthParams = urlParams.has('magic_credential') || 
-                              (urlParams.has('code') && urlParams.has('state'));
-        
-        console.log("Welcome - URL params:", Object.fromEntries(urlParams.entries()));
-        console.log("Welcome - Has OAuth params:", hasOAuthParams);
-        
-        if (!hasOAuthParams) {
-          console.log("Welcome - No OAuth redirect detected");
-          return;
-        }
-        
-        console.log("Welcome - OAuth redirect detected, processing result...");
-        
-        const result = await magic?.oauth2.getRedirectResult();
-        console.log("Welcome - Redirect result:", result);
-        
-        if (result) {
-          const userInfo = result.magic.userMetadata;
-          console.log("Welcome - User info from Magic:", userInfo);
-          
-          if (!userInfo?.publicAddress) {
-            console.error("Welcome - No public address found in user info");
-            return;
-          }
-
-          // Check if user exists
-          console.log("Welcome - Checking if user exists...");
-          const userExistsResponse = await userExists(userInfo.publicAddress);
-          console.log("Welcome - User exists response:", userExistsResponse);
-          
-          if (userExistsResponse.success) {
-            // User exists - sign them in
-            console.log("Welcome - User exists, signing in...");
-            const userPayload = {
-              email: userInfo?.email ?? "",
-              publicAddress: userInfo.publicAddress,
-              username: generateUserName(userInfo.publicAddress),
-              walletType: "magic-link" as const,
-            };
-            setUser(userPayload);
-            navigate("/dashboard");
-          } else {
-            // User doesn't exist - create account and redirect to dashboard
-            console.log("Welcome - User doesn't exist, creating account...");
-            const createUserPayload = {
-              username: generateUserName(userInfo.publicAddress),
-              email: userInfo?.email ?? "NA",
-              company: "NA",
-              tags: paramCategory?.split(",") ?? [],
-              userAddress: userInfo.publicAddress,
-            };
-            
-            const response = await createUser(createUserPayload);
-            console.log("Welcome - Create user response:", response);
-            
-            if (response.data.success) {
-              const userPayload = {
-                email: userInfo?.email ?? "",
-                publicAddress: userInfo.publicAddress,
-                username: generateUserName(userInfo.publicAddress),
-                walletType: "magic-link" as const,
-              };
-              setUser(userPayload);
-              navigate("/dashboard");
-            } else {
-              console.error("Welcome - Failed to create user account");
-            }
-          }
-        }
-      } catch (error) {
-        console.error("Welcome - OAuth redirect error:", error);
-      }
-    };
-
-    handleOAuthRedirect();
-  }, [magic, setUser, navigate, paramCategory]);
+  const { isAuthenticated } = useUser();
 
   // Redirect logged-in users to dashboard
   if (isAuthenticated) {

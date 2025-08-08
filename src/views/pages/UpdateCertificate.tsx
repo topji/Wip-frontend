@@ -73,7 +73,7 @@ const UpdateCertificate = () => {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <img src={logo} alt="logo" className="h-8" />
-            <WalletButton />
+          <WalletButton />
           </div>
         </div>
       </div>
@@ -136,12 +136,12 @@ const UpdateCertificate = () => {
                     </p>
                   </div>
 
-                  <div>
+            <div>
                     <label className="text-xs font-medium text-[#5865F2] mb-1 block">File Format</label>
                     <p className="text-sm text-gray-700">
                       {certificateDetails.data.fileFormat}
-                    </p>
-                  </div>
+              </p>
+            </div>
 
                   {/* Updates History */}
                   {certificateDetails.data.updates && certificateDetails.data.updates.length > 0 && (
@@ -177,8 +177,8 @@ const UpdateCertificate = () => {
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
                   <path d="M4 12L12 4M5.5 4H12V10.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-              </div>
-              <div>
+            </div>
+            <div>
                 <h2 className="text-xl font-semibold text-gray-900">Update Certificate</h2>
                 <p className="text-sm text-gray-500">Upload new content to update your certificate</p>
               </div>
@@ -235,24 +235,24 @@ const UpdateCertificate = () => {
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
+            </div>
+          </div>
 
               {/* Description Input */}
               <div>
                 <label className="text-sm font-medium text-gray-900 mb-2 block">
                   Update Description
                 </label>
-                <TextArea
-                  value={description}
-                  onChange={setDescription}
+          <TextArea
+            value={description}
+            onChange={setDescription}
                   placeholder="Describe what you're updating in this certificate..."
                   className="w-full"
-                />
+          />
               </div>
 
               {/* Content Input */}
-              {fileType === "text" && (
+          {fileType === "text" && (
                 <div>
                   <label className="text-sm font-medium text-gray-900 mb-2 block">
                     New Content
@@ -264,9 +264,9 @@ const UpdateCertificate = () => {
                     className="w-full"
                   />
                 </div>
-              )}
-
-              {fileType === "file" && (
+          )}
+          
+          {fileType === "file" && (
                 <div>
                   <label className="text-sm font-medium text-gray-900 mb-2 block">
                     New File
@@ -279,45 +279,45 @@ const UpdateCertificate = () => {
                     <p className="text-sm text-gray-600">Click to select a file</p>
                     <p className="text-xs text-gray-500 mt-1">Supports all file formats</p>
                   </div>
-                  <input
-                    className="hidden"
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                  />
+            <input
+              className="hidden"
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+            />
                 </div>
-              )}
+          )}
 
               {/* Update Button */}
-              <button
-                onClick={handleUpload}
+          <button
+            onClick={handleUpload}
                 disabled={processing || (!text && fileType === "text") || !description}
                 className="w-full bg-gradient-to-r from-[#5865F2] to-[#FF9519] disabled:opacity-50 text-white px-6 py-3 rounded-xl flex items-center justify-center gap-2 font-medium transition-all duration-200 hover:shadow-lg disabled:cursor-not-allowed"
-              >
-                {processing ? (
+          >
+            {processing ? (
                   <>
-                    <span className="animate-spin text-white">
-                      <img src={loader} alt="loading..." />
-                    </span>
+              <span className="animate-spin text-white">
+                <img src={loader} alt="loading..." />
+              </span>
                     Updating Certificate...
                   </>
-                ) : (
-                  <>
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path
-                        d="M4 12L12 4M5.5 4H12V10.5"
-                        stroke="white"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+            ) : (
+              <>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path
+                    d="M4 12L12 4M5.5 4H12V10.5"
+                    stroke="white"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
                     Update Certificate
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
         </div>
       </div>
     </div>

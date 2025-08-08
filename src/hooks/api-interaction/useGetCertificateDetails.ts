@@ -14,19 +14,19 @@ export interface CertificateUpdate {
 }
 
 export interface CertificateDetails {
-    id: number;
-    fileHash: string;
-    metadataURI: string;
-    description: string;
-    fileFormat: string;
-    timestamp: number;
+        id: number;
+        fileHash: string;
+        metadataURI: string;
+        description: string;
+        fileFormat: string;
+        timestamp: number;
     owners: CertificateOwner[];
     updates: CertificateUpdate[];
     updatedFileHashes: string[];
-    transactionHash: string;
-    createdAt: string;
-    updatedAt: string;
-}
+        transactionHash: string;
+        createdAt: string;
+        updatedAt: string;
+    }
 
 interface CertificateDetailsResponse {
     success: boolean;

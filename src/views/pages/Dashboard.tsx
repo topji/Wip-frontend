@@ -9,6 +9,7 @@ import {
 import { useGetCertificateDetails } from "@/hooks/api-interaction/useGetCertificateDetails";
 import { useUser } from "@/context/UserContext";
 
+
 // Helper function to safely format dates
 const formatDate = (timestamp: number | string | undefined): string => {
   if (!timestamp) return "Unknown date";
@@ -202,7 +203,7 @@ const VersionHistoryModal = ({
                   <p className="text-sm text-green-800">{certificate.fileFormat}</p>
                 </div>
               </div>
-            </div>
+                </div>
 
             {/* Updated Versions */}
             {certificateDetails?.data?.updates && certificateDetails.data.updates.length > 0 ? (
@@ -233,7 +234,7 @@ const VersionHistoryModal = ({
                       <p className="text-sm font-mono text-blue-800 break-all">{update.transactionHash}</p>
                     </div>
                   </div>
-                </div>
+                  </div>
               ))
             ) : (
               <div className="text-center py-8 text-gray-500">
@@ -241,12 +242,12 @@ const VersionHistoryModal = ({
                   <path d="M9 12H15M12 9V15M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
                 <p className="text-sm">No updates available yet</p>
-              </div>
+                      </div>
             )}
-          </div>
-        </div>
-      </div>
-    </div>
+                            </div>
+                          </div>
+                      </div>
+                    </div>
   );
 };
 
@@ -292,28 +293,28 @@ const CertificateCard = ({
 
               {/* Action Buttons - Right Side */}
               <div className="flex flex-col gap-2 ml-4">
-                <Link
-                  to="/update-certificate"
+                      <Link
+                        to="/update-certificate"
                   state={{ certificateId: certificate.certificateId }}
                   className="bg-[#5865F2] hover:bg-[#4752C4] text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors duration-200"
                 >
                   <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                     <path d="M4 12L12 4M5.5 4H12V10.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
+                        </svg>
                   Update
-                </Link>
-                <Link
-                  to="/verify-certificate"
-                  state={{
+                      </Link>
+                      <Link
+                        to="/verify-certificate"
+                        state={{ 
                     certificateId: certificate.certificateId,
                     originalHash: certificate.fileHash,
-                  }}
+                        }}
                   className="bg-[#FF9519] hover:bg-[#E6850F] text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors duration-200"
-                >
+                      >
                   <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                     <path d="M4 12L12 4M5.5 4H12V10.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                  Verify
+                        Verify
                 </Link>
                 <button
                   onClick={() => setShowVersionHistory(true)}
@@ -321,7 +322,7 @@ const CertificateCard = ({
                 >
                   <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                     <path d="M8 4V2M8 14V12M12 8H14M2 8H4M13.5 13.5L12 12M4 4L5.5 5.5M4 13.5L5.5 12M13.5 4L12 5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
+                        </svg>
                   See Version History
                 </button>
               </div>
@@ -365,7 +366,7 @@ const CertificateCard = ({
             </div>
           </div>
         </div>
-      </div>
+    </div>
 
       {/* Version History Modal */}
       <VersionHistoryModal

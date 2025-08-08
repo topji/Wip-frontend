@@ -36,15 +36,15 @@ const AuthWithGoogle = ({
       const redirectURI = import.meta.env.VITE_GOOGLE_REDIRECT_URL || window.location.origin + "/dashboard";
       
       // Temporary hardcoded redirect for testing
-      const testRedirectURI = "http://localhost:5173/dashboard";
+      // const testRedirectURI = "http://localhost:5173/dashboard";
       console.log("Redirect URI being used:", redirectURI);
-      console.log("Test redirect URI:", testRedirectURI);
+      // console.log("Test redirect URI:", testRedirectURI);
       console.log("Window location origin:", window.location.origin);
       
       // Use Magic's login widget with Google
       await magic?.oauth2.loginWithRedirect({
         provider: "google",
-        redirectURI: testRedirectURI, // Use hardcoded for testing
+        redirectURI: redirectURI, // Use hardcoded for testing
       });
       
       console.log("OAuth redirect initiated");

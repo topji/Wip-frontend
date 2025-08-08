@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import React from "react";
 
+
 const AuthWithGoogle = ({
   setError,
 }: {
@@ -32,7 +33,7 @@ const AuthWithGoogle = ({
       // Use Magic's login widget with Google
       await magic?.oauth2.loginWithRedirect({
         provider: "google",
-        redirectURI: process.env.VITE_GOOGLE_REDIRECT_URL || "", // Redirect to root URL where OAuth processing happens
+        redirectURI: import.meta.env.VITE_GOOGLE_REDIRECT_URL || window.location.origin + "/", // Use env var or fallback to current origin
       });
       
       console.log("Magic login redirect initiated");

@@ -4,7 +4,7 @@ import { useMagic } from "@/hooks/useMagic";
 import { userExists } from "@/services/api/userServices";
 import { generateUserName } from "@/utils/generateUserName";
 import { AxiosError } from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import React from "react";
 
@@ -30,13 +30,12 @@ const AuthWithGoogle = ({
       console.log("Magic instance:", magic);
       
       // Use Magic's login widget with Google
-      const result = await magic?.oauth2.loginWithRedirect({
+      await magic?.oauth2.loginWithRedirect({
         provider: "google",
-        redirectURI: window.location.origin,
+        redirectURI: window.location.origin + "/", // Redirect to root URL where OAuth processing happens
       });
       
-      console.log("Magic login result:", result);
-      
+      console.log("Magic login redirect initiated");
       // The page will redirect to Google, then back to our app
       // Magic will handle the OAuth flow automatically
       
@@ -48,54 +47,45 @@ const AuthWithGoogle = ({
   };
 
   // Handle the redirect result when component mounts
-  const handleRedirectResult = async () => {
-    try {
-      console.log("Checking for redirect result...");
-      
-      const result = await magic?.oauth2.getRedirectResult();
-      console.log("Redirect result:", result);
-      
-      if (result) {
-        const userInfo = result.magic.userMetadata;
-        console.log("User info from Magic:", userInfo);
+  useEffect(() => {
+    const handleRedirectResult = async () => {
+      try {
+        // Check if we're returning from an OAuth redirect
+        const urlParams = new URLSearchParams(window.location.search);
+        const hasOAuthParams = urlParams.has('magic_credential') || 
+                              (urlParams.has('code') && urlParams.has('state'));
         
-        if (!userInfo?.publicAddress) {
-          console.error("No public address found in user info");
-          setError("Failed to get wallet address from Google authentication");
+        console.log("URL params:", Object.fromEntries(urlParams.entries()));
+        console.log("Has OAuth params:", hasOAuthParams);
+        
+        if (!hasOAuthParams) {
+          console.log("No OAuth redirect detected, skipping getRedirectResult");
           return;
         }
-
-        // Check if user exists
-        console.log("Checking if user exists...");
-        const userExistsResponse = await userExists(userInfo.publicAddress);
-        console.log("User exists response:", userExistsResponse);
         
-        if (userExistsResponse.success) {
-          // User exists - sign them in
-          console.log("User exists, signing in...");
-          const userPayload = {
-            email: userInfo?.email ?? "",
-            publicAddress: userInfo.publicAddress,
-            username: generateUserName(userInfo.publicAddress),
-            walletType: "magic-link" as const,
-          };
-          setUser(userPayload);
-          navigate("/dashboard");
-        } else {
-          // User doesn't exist - create account and redirect to dashboard
-          console.log("User doesn't exist, creating account...");
-          const createUserPayload = {
-            username: generateUserName(userInfo.publicAddress),
-            email: userInfo?.email ?? "NA",
-            company: "NA",
-            tags: paramsCategory?.split(",") ?? [],
-            userAddress: userInfo.publicAddress,
-          };
+        console.log("OAuth redirect detected, processing result...");
+        
+        const result = await magic?.oauth2.getRedirectResult();
+        console.log("Redirect result:", result);
+        
+        if (result) {
+          const userInfo = result.magic.userMetadata;
+          console.log("User info from Magic:", userInfo);
           
-          const response = await createUser(createUserPayload);
-          console.log("Create user response:", response);
+          if (!userInfo?.publicAddress) {
+            console.error("No public address found in user info");
+            setError("Failed to get wallet address from Google authentication");
+            return;
+          }
+
+          // Check if user exists
+          console.log("Checking if user exists...");
+          const userExistsResponse = await userExists(userInfo.publicAddress);
+          console.log("User exists response:", userExistsResponse);
           
-          if (response.data.success) {
+          if (userExistsResponse.success) {
+            // User exists - sign them in
+            console.log("User exists, signing in...");
             const userPayload = {
               email: userInfo?.email ?? "",
               publicAddress: userInfo.publicAddress,
@@ -105,18 +95,46 @@ const AuthWithGoogle = ({
             setUser(userPayload);
             navigate("/dashboard");
           } else {
-            setError("Failed to create user account");
+            // User doesn't exist - create account and redirect to dashboard
+            console.log("User doesn't exist, creating account...");
+            const createUserPayload = {
+              username: generateUserName(userInfo.publicAddress),
+              email: userInfo?.email ?? "NA",
+              company: "NA",
+              tags: paramsCategory?.split(",") ?? [],
+              userAddress: userInfo.publicAddress,
+            };
+            
+            const response = await createUser(createUserPayload);
+            console.log("Create user response:", response);
+            
+            if (response.data.success) {
+              const userPayload = {
+                email: userInfo?.email ?? "",
+                publicAddress: userInfo.publicAddress,
+                username: generateUserName(userInfo.publicAddress),
+                walletType: "magic-link" as const,
+              };
+              setUser(userPayload);
+              navigate("/dashboard");
+            } else {
+              setError("Failed to create user account");
+            }
           }
         }
+      } catch (error) {
+        console.error("Redirect result error:", error);
+        // Only show error if we were actually trying to process a redirect
+        const urlParams = new URLSearchParams(window.location.search);
+        const hasOAuthParams = urlParams.has('magic_credential') || 
+                              (urlParams.has('code') && urlParams.has('state'));
+        
+        if (hasOAuthParams) {
+          setError("Failed to process authentication. Please try again.");
+        }
       }
-    } catch (error) {
-      console.error("Redirect result error:", error);
-      setError(error instanceof AxiosError ? error.message : "Failed to process authentication");
-    }
-  };
+    };
 
-  // Check for redirect result on component mount
-  React.useEffect(() => {
     handleRedirectResult();
   }, [magic, setUser, navigate, setError, paramsCategory]);
 

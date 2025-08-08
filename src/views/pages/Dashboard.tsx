@@ -104,36 +104,38 @@ const Dashboard = () => {
 
 // Component to handle sorted certificates
 const SortedCertificatesList = ({ certificates }: { certificates: any[] }) => {
-  // Create individual certificate detail hooks for each certificate
-  const certificateDetailsHooks = certificates.map(certificate => 
-    useGetCertificateDetails(certificate.certificateId.toString())
-  );
-
-  // Sort certificates by last updated timestamp
+  // Sort certificates by last updated timestamp first
   const sortedCertificates = useMemo(() => {
-    const certificatesWithDetails = certificates.map((certificate, index) => ({
-      certificate,
-      details: certificateDetailsHooks[index].data,
-      isLoading: certificateDetailsHooks[index].isLoading
-    }));
-
-    return certificatesWithDetails.sort((a, b) => {
-      const aLastUpdated = getLastUpdatedTimestamp(a.certificate);
-      const bLastUpdated = getLastUpdatedTimestamp(b.certificate);
+    return certificates.sort((a, b) => {
+      const aLastUpdated = getLastUpdatedTimestamp(a);
+      const bLastUpdated = getLastUpdatedTimestamp(b);
       return bLastUpdated - aLastUpdated; // Sort in descending order (newest first)
     });
-  }, [certificates, certificateDetailsHooks]);
+  }, [certificates]);
 
   return (
     <div className="flex flex-col gap-6">
-      {sortedCertificates.map(({ certificate, details }) => (
-        <CertificateCard 
-          key={certificate._id} 
-          certificate={certificate} 
-          certificateDetails={details}
+      {sortedCertificates.map((certificate) => (
+        <CertificateCardWithDetails
+          key={certificate._id}
+          certificate={certificate}
         />
       ))}
     </div>
+  );
+};
+
+// Separate component to handle individual certificate details
+const CertificateCardWithDetails = ({ certificate }: { certificate: any }) => {
+  const { data: certificateDetails, isLoading } = useGetCertificateDetails(
+    certificate.certificateId.toString()
+  );
+
+  return (
+    <CertificateCard
+      certificate={certificate}
+      certificateDetails={certificateDetails}
+    />
   );
 };
 

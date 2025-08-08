@@ -32,7 +32,7 @@ const AuthWithGoogle = ({
       // Use Magic's login widget with Google
       await magic?.oauth2.loginWithRedirect({
         provider: "google",
-        redirectURI: "http://localhost:5173", // Redirect to root URL where OAuth processing happens
+        redirectURI: process.env.VITE_GOOGLE_REDIRECT_URL || "", // Redirect to root URL where OAuth processing happens
       });
       
       console.log("Magic login redirect initiated");

@@ -127,7 +127,7 @@ const SortedCertificatesList = ({ certificates }: { certificates: any[] }) => {
 
 // Separate component to handle individual certificate details
 const CertificateCardWithDetails = ({ certificate }: { certificate: any }) => {
-  const { data: certificateDetails, isLoading } = useGetCertificateDetails(
+  const { data: certificateDetails } = useGetCertificateDetails(
     certificate.certificateId.toString()
   );
 

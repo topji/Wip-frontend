@@ -25,9 +25,6 @@ import VerifyCertificate from "./views/pages/VerifyCertificate";
 import VerificationSuccess from "./views/pages/VerificationSuccess";
 import CertificateDetails from "./views/pages/CertificateDetails";
 import ProtectedLayout from "./views/layouts/ProtectedLayout";
-import FAQs from "./views/pages/FAQs";
-import AddressBook from "./views/pages/AddressBook";
-import Settings from "./views/pages/Settings";
 const config = getDefaultConfig({
   appName: "World IP",
   projectId: "7825716eb0430cd79e3edfabcd5e7518",
@@ -98,48 +95,6 @@ const router = createBrowserRouter([
     ],
   },
   {
-    path: "faq",
-    element: (
-      <ProtectedLayout>
-        <DashboardLayout />
-      </ProtectedLayout>
-    ),
-    children: [
-      {
-        index: true,
-        element: <FAQs />,
-      },
-    ],
-  },
-  {
-    path: "address-book",
-    element: (
-      <ProtectedLayout>
-        <DashboardLayout />
-      </ProtectedLayout>
-    ),
-    children: [
-      {
-        index: true,
-        element: <AddressBook />,
-      },
-    ],
-  },
-  {
-    path: "settings",
-    element: (
-      <ProtectedLayout>
-        <DashboardLayout />
-      </ProtectedLayout>
-    ),
-    children: [
-      {
-        index: true,
-        element: <Settings />,
-      },
-    ],
-  },
-  {
     path: "update-certificate",
     element: (
       <ProtectedLayout>
@@ -168,14 +123,6 @@ const router = createBrowserRouter([
     element: (
       <ProtectedLayout>
         <VerificationSuccess />
-      </ProtectedLayout>
-    ),
-  },
-  {
-    path: "certificate-details/:id",
-    element: (
-      <ProtectedLayout>
-        <CertificateDetails />
       </ProtectedLayout>
     ),
   },

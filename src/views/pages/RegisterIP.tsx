@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 import { TextArea } from "@/components/TextArea/TextArea";
 import { useGenerateHash } from "@/hooks/useGenerateHash";
 import loader from "@/assets/loader.svg";
-import { useNavigate } from "react-router";
+import { useNavigate, Link } from "react-router";
 import { useSessionStorage } from "@/hooks/useSessionStorage";
 import WalletButton from "@/components/wallet/WalletButton";
 
@@ -56,6 +56,20 @@ const RegisterIP = () => {
         <div className="self-start px-16 pb-8 pt-12">
           <img src={logo} alt="logo" />
         </div>
+        
+        {/* Back to Dashboard Navigation */}
+        <div className="self-start px-16 -mt-4">
+          <Link
+            to="/dashboard"
+            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200"
+          >
+            <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
+              <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Back to Dashboard
+          </Link>
+        </div>
+        
         <h1 className="text-6xl font-medium w-[18ch]">
           Drop your <span className="text-orange-400">Masterpiece </span>
           <span className="text-blue-500">here</span>

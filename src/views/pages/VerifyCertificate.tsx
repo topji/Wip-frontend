@@ -6,7 +6,7 @@ import { useGenerateHash } from "@/hooks/useGenerateHash";
 import loader from "@/assets/loader.svg";
 import { useNavigate, useLocation } from "react-router";
 import WalletButton from "@/components/wallet/WalletButton";
-import copyRightIllustration from "@/assets/illustrations/copyRightIllus.png";
+import { generateCertificateAvatar } from "@/utils/dicebear";
 
 const VerifyCertificate = () => {
   const [fileType, setFileType] = useState<"file" | "text">("file");
@@ -16,7 +16,7 @@ const VerifyCertificate = () => {
   const [processing, setProcessing] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { originalHash, certificateId } = location.state;
+  const { originalHash, certificateId, description } = location.state;
 
   const handleVerify = async () => {
     if (fileType === "text") {
@@ -54,7 +54,18 @@ const VerifyCertificate = () => {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <img src={logo} alt="logo" className="h-8" />
-          <WalletButton />
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-200"
+                title="Close"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 16 16" fill="none">
+                  <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+              <WalletButton />
+            </div>
           </div>
         </div>
       </div>
@@ -79,8 +90,8 @@ const VerifyCertificate = () => {
               {/* Certificate Image */}
               <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden mb-4">
                 <img
-                  src={copyRightIllustration}
-                  alt="Certificate preview"
+                  src={generateCertificateAvatar(description || "default-certificate", 400)}
+                  alt="Certificate avatar"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -90,7 +101,7 @@ const VerifyCertificate = () => {
                 <div>
                   <label className="text-xs font-medium text-[#FF9519] mb-1 block">Original Hash</label>
                   <p className="text-xs text-gray-600 font-mono bg-gray-50 px-3 py-2 rounded-md break-all">
-                    {originalHash}
+                    {originalHash || "N/A"}
                   </p>
                 </div>
 

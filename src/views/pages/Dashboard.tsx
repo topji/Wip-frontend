@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
-import copyRightIllustration from "@/assets/illustrations/copyRightIllus.png";
+import { generateCertificateAvatar } from "@/utils/dicebear";
 import {
   useGetCertificateIds,
   CertificateOwner,
@@ -40,6 +40,25 @@ const getLastUpdatedTimestamp = (certificate: any): number => {
   return certificate.timestamp;
 };
 
+// Helper function to calculate stats
+const calculateStats = (certificates: any[]) => {
+  const totalCertificates = certificates.length;
+  
+  // Find the earliest certificate (active since)
+  const earliestTimestamp = certificates.length > 0 
+    ? Math.min(...certificates.map(cert => cert.timestamp))
+    : null;
+  
+  // Get unique file formats
+  const formats = [...new Set(certificates.map(cert => cert.fileFormat).filter(Boolean))];
+  
+  return {
+    totalCertificates,
+    activeSince: earliestTimestamp,
+    formatsUsed: formats
+  };
+};
+
 const Dashboard = () => {
   const { user } = useUser();
   const { data: certificateIds, isLoading: loadingCertificateIds } =
@@ -49,17 +68,94 @@ const Dashboard = () => {
 
   const isLoading = loadingCertificateIds;
   const certificates = certificateIds?.data || [];
+  const stats = calculateStats(certificates);
 
   return (
-    <div className="p-6 bg-[#EDEDED] w-full flex flex-col">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-semibold flex items-center gap-2">
+    <div className="p-4 md:p-6 bg-[#EDEDED] w-full flex flex-col">
+      <div className="flex items-center justify-between mb-4 md:mb-6">
+        <h1 className="text-lg md:text-xl font-semibold flex items-center gap-2">
           My #Copyrights
           <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </h1>
+        
+        {/* Mobile Upload Button */}
+        <Link
+          to="/create-hash"
+          className="md:hidden bg-[#FF9519] hover:bg-[#E6850F] text-white px-3 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors duration-200"
+        >
+          <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
+            <path d="M8 12L8 4M8 4L5 7M8 4L11 7M2 2L14 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          Upload
+        </Link>
       </div>
+
+      {/* Stats Section */}
+      {!isLoading && certificates.length > 0 && (
+        <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Total Certificates */}
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-[#5865F2] to-[#4752C4] rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 font-medium">Total Certificates</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.totalCertificates}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Active Since */}
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-[#FF9519] to-[#E6850F] rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 font-medium">Active Since</p>
+                <p className="text-sm font-bold text-gray-900">
+                  {stats.activeSince ? formatDate(stats.activeSince) : "N/A"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Formats Used */}
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 font-medium">Formats Used</p>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {stats.formatsUsed.length > 0 ? (
+                    stats.formatsUsed.map((format, index) => (
+                      <span
+                        key={index}
+                        className="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-md"
+                      >
+                        {format}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-sm text-gray-500">None</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isLoading ? (
         <div className="flex items-center justify-center grow">
@@ -89,10 +185,10 @@ const Dashboard = () => {
               to="/create-hash"
               className="inline-flex items-center gap-2 bg-gradient-to-r from-[#5865F2] to-[#FF9519] text-white px-8 py-4 rounded-full font-semibold hover:shadow-lg transition-all duration-200 transform hover:scale-105"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
-                <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <svg className="w-5 h-5" viewBox="0 0 16 16" fill="none">
+                <path d="M8 12L8 4M8 4L5 7M8 4L11 7M2 2L14 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              Create Your First Hash
+              Upload Your First Hash
             </Link>
           </div>
         </div>
@@ -115,7 +211,7 @@ const SortedCertificatesList = ({ certificates }: { certificates: any[] }) => {
   }, [certificates]);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4 md:gap-6">
       {sortedCertificates.map((certificate) => (
         <CertificateCardWithDetails
           key={certificate._id}
@@ -344,110 +440,136 @@ const CertificateCard = ({
   const latestFileHash = useMemo(() => {
     const updates = certificateDetails?.data?.updates || [];
     const latestUpdate = updates.length > 0 ? updates[updates.length - 1] : null;
-    return latestUpdate ? latestUpdate.fileHash : certificate.fileHash;
+    const fileHash = latestUpdate ? latestUpdate.fileHash : certificate?.fileHash;
+    return fileHash || "default-hash";
   }, [certificateDetails, certificate]);
 
   return (
     <>
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200">
-        <div className="flex">
+      <div className="bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 overflow-hidden group">
+        <div className="flex flex-col lg:flex-row">
           {/* Image Preview */}
-          <div className="w-58 h-77 bg-gray-100 rounded-l-xl overflow-hidden flex-shrink-0">
+          <div className="w-full lg:w-64 h-48 lg:h-auto bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden flex-shrink-0 flex items-center justify-center">
             <img
-              src={copyRightIllustration}
-              alt="Copyright preview"
-              className="w-full h-full object-cover"
+              src={generateCertificateAvatar(certificate?.description || "default-certificate", 200)}
+              alt="Certificate avatar"
+              className="w-32 h-32 lg:w-40 lg:h-40 object-contain group-hover:scale-105 transition-transform duration-300 rounded-xl"
             />
           </div>
 
           {/* Content Area */}
           <div className="flex-1 p-6">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <div className="text-xs text-gray-500 mb-1">
-                  Updated on {formatDate(lastUpdatedTimestamp)}
+            {/* Header Section */}
+            <div className="mb-6">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1">
+                  <div className="text-xs text-gray-500 mb-2 font-medium">
+                    Updated on {formatDate(lastUpdatedTimestamp)}
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 leading-tight">
+                    {certificate.description}
+                  </h3>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {certificate.description}
-                </h3>
+                <div className="ml-4 flex items-center gap-3">
+                  <Link
+                    to={`/certificate-details/${certificate.certificateId}`}
+                    state={{ certificateId: certificate.certificateId }}
+                    className="group/view bg-gradient-to-r from-[#5865F2] to-[#4752C4] hover:from-[#4752C4] hover:to-[#3B4BB8] text-white px-3 py-2 rounded-lg flex items-center gap-1.5 text-xs font-semibold transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                  >
+                    <svg className="w-4 h-4 group-hover/view:scale-110 transition-transform duration-200" viewBox="0 0 16 16" fill="none">
+                      <path d="M1 3C1 1.89543 1.89543 1 3 1H13C14.1046 1 15 1.89543 15 3V13C15 14.1046 14.1046 15 13 15H3C1.89543 15 1 14.1046 1 13V3Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M5 7L7 9L11 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span>View</span>
+                  </Link>
+                  <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="text-xs text-gray-500 font-medium">Active</span>
+                </div>
               </div>
-
-              {/* Action Buttons - Right Side */}
-              <div className="flex flex-col gap-2 ml-4">
-                      <Link
-                        to="/update-certificate"
-                  state={{ certificateId: certificate.certificateId }}
-                  className="bg-[#5865F2] hover:bg-[#4752C4] text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors duration-200"
-                >
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                    <path d="M4 12L12 4M5.5 4H12V10.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                  Update
-                      </Link>
-                      <Link
-                        to="/verify-certificate"
-                        state={{ 
-                    certificateId: certificate.certificateId,
-                    originalHash: certificate.fileHash,
-                        }}
-                  className="bg-[#FF9519] hover:bg-[#E6850F] text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors duration-200"
-                      >
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                    <path d="M4 12L12 4M5.5 4H12V10.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                        Verify
-                </Link>
-                <button
-                  onClick={() => setShowVersionHistory(true)}
-                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors duration-200"
-                >
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                    <path d="M8 4V2M8 14V12M12 8H14M2 8H4M13.5 13.5L12 12M4 4L5.5 5.5M4 13.5L5.5 12M13.5 4L12 5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                  See Version History
-                </button>
-              </div>
-            </div>
-
-            {/* Hash ID - Show latest fileHash */}
-            <div className="mb-4">
-              <div className="text-xs font-medium text-[#5865F2] mb-1">
-                Hash ID
-              </div>
-              <div className="text-sm text-gray-700 font-mono bg-gray-50 px-3 py-2 rounded-md break-all">
-                {latestFileHash}
+              
+              {/* Hash ID */}
+              <div className="mb-4">
+                <div className="text-xs font-semibold text-[#5865F2] mb-2 uppercase tracking-wide">
+                  Hash ID
+                </div>
+                <div className="text-sm text-gray-700 font-mono bg-gray-50 px-4 py-3 rounded-xl border border-gray-200 break-all">
+                  {latestFileHash?.slice(0, 24) || "N/A"}...
+                </div>
               </div>
             </div>
 
             {/* Ownership Rights */}
-            <div>
-              <div className="text-xs font-medium text-[#5865F2] mb-2">
+            <div className="mb-6">
+              <div className="text-xs font-semibold text-[#5865F2] mb-3 uppercase tracking-wide">
                 Ownership Rights
               </div>
               <div className="flex gap-2 flex-wrap">
                 {certificate.owners.map((owner: CertificateOwner, index: number) => (
                   <div
                     key={index}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-full"
+                    className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-[#5865F2]/10 to-[#5865F2]/5 border border-[#5865F2]/20 rounded-xl"
                   >
-                    <div className="w-5 h-5 bg-[#5865F2] rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs font-medium">
+                    <div className="w-6 h-6 bg-gradient-to-br from-[#5865F2] to-[#4752C4] rounded-full flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">
                         {owner.walletAddress.charAt(2).toUpperCase()}
                       </span>
                     </div>
-                    <span className="text-gray-600 text-xs font-medium">
+                    <span className="text-gray-700 text-sm font-medium">
                       {owner.walletAddress.slice(0, 6)}...{owner.walletAddress.slice(-4)}
                     </span>
-                    <span className="text-[#5865F2] text-xs font-bold">
+                    <span className="text-[#5865F2] text-sm font-bold bg-white px-2 py-1 rounded-lg">
                       {owner.percentage}%
                     </span>
                   </div>
                 ))}
               </div>
             </div>
+
+            {/* Action Buttons */}
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+              {/* Update Button */}
+              <Link
+                to="/update-certificate"
+                state={{ certificateId: certificate.certificateId }}
+                className="group/btn bg-gradient-to-r from-[#FF9519] to-[#E6850F] hover:from-[#E6850F] hover:to-[#D17A0E] text-white px-4 py-2 rounded-xl flex items-center justify-center gap-2 text-sm font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                <svg className="w-4 h-4 group-hover/btn:scale-110 transition-transform duration-200" viewBox="0 0 16 16" fill="none">
+                  <path d="M4 12L12 4M5.5 4H12V10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span>Update</span>
+              </Link>
+
+              {/* Verify Button */}
+              <Link
+                to="/verify-certificate"
+                state={{ 
+                  certificateId: certificate.certificateId,
+                  originalHash: certificate.fileHash,
+                  description: certificate.description
+                }}
+                className="group/btn bg-transparent border-2 border-[#FF9519] hover:bg-[#FF9519]/10 text-[#FF9519] hover:text-[#FF9519] px-4 py-2 rounded-xl flex items-center justify-center gap-2 text-sm font-semibold transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+              >
+                <svg className="w-4 h-4 group-hover/btn:scale-110 transition-transform duration-200" viewBox="0 0 16 16" fill="none">
+                  <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span>Verify</span>
+              </Link>
+
+              {/* Version History Button */}
+              <button
+                onClick={() => setShowVersionHistory(true)}
+                className="group/btn bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700 px-4 py-2 rounded-xl flex items-center justify-center gap-2 text-sm font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                <svg className="w-4 h-4 group-hover/btn:scale-110 transition-transform duration-200" viewBox="0 0 16 16" fill="none">
+                  <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm0-1A7 7 0 1 1 8 1a7 7 0 0 1 0 14z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span>History</span>
+              </button>
+            </div>
           </div>
         </div>
-    </div>
+      </div>
 
       {/* Version History Modal */}
       <VersionHistoryModal
